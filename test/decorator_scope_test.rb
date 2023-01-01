@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require "test_helper"
 
 # TODO: remove in 2.0.
 class DecoratorScopeTest < MiniTest::Spec
@@ -12,21 +12,21 @@ class DecoratorScopeTest < MiniTest::Spec
     Module.new do
       include Representable::Hash
       property :title, decorator_scope: true
-      def title = 'Crystal Planet'
+      def title; "Crystal Planet"; end
     end
   end
 
-  it 'executes lambdas in represented context' do
+  it "executes lambdas in represented context" do
     _(
-      Class.new do
+      Class.new {
         def title_from_representer
-          'Sounds Of Silence'
+          "Sounds Of Silence"
         end
-      end.new.extend(representer).to_hash
-    ).must_equal({ 'title' => 'Sounds Of Silence' })
+      }.new.extend(representer).to_hash
+    ).must_equal({"title" => "Sounds Of Silence"})
   end
 
-  it 'executes method in represented context' do
-    _(Object.new.extend(representer_with_method).to_hash).must_equal({ 'title' => 'Crystal Planet' })
+  it "executes method in represented context" do
+    _(Object.new.extend(representer_with_method).to_hash).must_equal({"title" => "Crystal Planet"})
   end
 end

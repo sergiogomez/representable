@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require "test_helper"
 
 class DefaultsOptionsTest < BaseTest
   let(:format) { :hash }
-  let(:song) { Struct.new(:title, :author_name, :song_volume, :description).new('Revolution', 'Some author', 20, nil) }
+  let(:song) { Struct.new(:title, :author_name, :song_volume, :description).new("Revolution", "Some author", 20, nil) }
   let(:prepared) { representer.prepare song }
 
-  describe 'hash options combined with dynamic options' do
+  describe "hash options combined with dynamic options" do
     representer! do
       defaults render_nil: true do |name|
-        { as: name.to_s.upcase }
+        {as: name.to_s.upcase}
       end
 
       property :title
@@ -22,18 +22,18 @@ class DefaultsOptionsTest < BaseTest
     it {
       assert_equal_document(
         {
-          'TITLE' => 'Revolution', 'AUTHOR_NAME' => 'Some author', 'DESCRIPTION' => nil,
-          'SONG_VOLUME' => 20
+          "TITLE" => "Revolution", "AUTHOR_NAME" => "Some author", "DESCRIPTION" => nil,
+          "SONG_VOLUME" => 20
         },
         render(prepared)
       )
     }
   end
 
-  describe 'with only dynamic property options' do
+  describe "with only dynamic property options" do
     representer! do
       defaults do |name|
-        { as: name.to_s.upcase }
+        {as: name.to_s.upcase}
       end
 
       property :title
@@ -44,13 +44,13 @@ class DefaultsOptionsTest < BaseTest
 
     it {
       assert_equal_document(
-        { 'TITLE' => 'Revolution', 'AUTHOR_NAME' => 'Some author', 'SONG_VOLUME' => 20 },
+        {"TITLE" => "Revolution", "AUTHOR_NAME" => "Some author", "SONG_VOLUME" => 20},
         render(prepared)
       )
     }
   end
 
-  describe 'with only hashes' do
+  describe "with only hashes" do
     representer! do
       defaults render_nil: true
 
@@ -63,15 +63,15 @@ class DefaultsOptionsTest < BaseTest
     it {
       assert_equal_document(
         {
-          'title' => 'Revolution', 'author_name' => 'Some author', 'description' => nil,
-          'song_volume' => 20
+          "title" => "Revolution", "author_name" => "Some author", "description" => nil,
+          "song_volume" => 20
         },
         render(prepared)
       )
     }
   end
 
-  describe 'direct defaults hash' do
+  describe "direct defaults hash" do
     representer! do
       defaults render_nil: true
 
@@ -84,18 +84,18 @@ class DefaultsOptionsTest < BaseTest
     it {
       assert_equal_document(
         {
-          'title' => 'Revolution', 'author_name' => 'Some author', 'description' => nil,
-          'song_volume' => 20
+          "title" => "Revolution", "author_name" => "Some author", "description" => nil,
+          "song_volume" => 20
         },
         render(prepared)
       )
     }
   end
 
-  describe 'direct defaults hash with dynamic options' do
+  describe "direct defaults hash with dynamic options" do
     representer! do
       defaults render_nil: true do |name|
-        { as: name.to_s.upcase }
+        {as: name.to_s.upcase}
       end
 
       property :title
@@ -107,18 +107,18 @@ class DefaultsOptionsTest < BaseTest
     it {
       assert_equal_document(
         {
-          'TITLE' => 'Revolution', 'AUTHOR_NAME' => 'Some author', 'DESCRIPTION' => nil,
-          'SONG_VOLUME' => 20
+          "TITLE" => "Revolution", "AUTHOR_NAME" => "Some author", "DESCRIPTION" => nil,
+          "SONG_VOLUME" => 20
         },
         render(prepared)
       )
     }
   end
 
-  describe 'prioritizes specific options' do
+  describe "prioritizes specific options" do
     representer! do
       defaults render_nil: true do |name|
-        { as: name.to_s.upcase }
+        {as: name.to_s.upcase}
       end
 
       property :title
@@ -129,7 +129,7 @@ class DefaultsOptionsTest < BaseTest
 
     it {
       assert_equal_document(
-        { 'TITLE' => 'Revolution', 'AUTHOR_NAME' => 'Some author', 'volume' => 20 },
+        {"TITLE" => "Revolution", "AUTHOR_NAME" => "Some author", "volume" => 20},
         render(prepared)
       )
     }

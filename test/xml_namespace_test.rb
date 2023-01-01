@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 # <lib:library
 #    xmlns:lib="http://eric.van-der-vlist.com/ns/library"
@@ -64,10 +64,10 @@ class NamespaceXMLTest < Minitest::Spec
     feature Representable::XML
     feature Representable::XML::Namespace
 
-    namespace 'http://eric.van-der-vlist.com/ns/library'
+    namespace "http://eric.van-der-vlist.com/ns/library"
 
     property :book do
-      namespace 'http://eric.van-der-vlist.com/ns/library'
+      namespace "http://eric.van-der-vlist.com/ns/library"
 
       property :id, attribute: true
       property :isbn
@@ -76,14 +76,14 @@ class NamespaceXMLTest < Minitest::Spec
   # :simple-class end
 
   # default namespace for library
-  it 'what' do
+  it "what" do
     assert_xml_equal(
       # :simple-xml
-      %(<library xmlns="http://eric.van-der-vlist.com/ns/library">
+      %{<library xmlns="http://eric.van-der-vlist.com/ns/library">
       <book id="1">
         <isbn>666</isbn>
       </book>
-    </library>),
+    </library>},
       # :simple-xml end
       Library.new(Model::Library.new(book)).to_xml
     )
@@ -98,7 +98,7 @@ class Namespace2XMLTest < Minitest::Spec
   end
 
   let(:book) do
-    Model::Book.new(1, 666, Model::Character.new('Fowler'), [Model::Character.new('Frau Java', 1991, 'typed')])
+    Model::Book.new(1, 666, Model::Character.new("Fowler"), [Model::Character.new("Frau Java", 1991, "typed")])
   end
 
   # :map-class
@@ -106,37 +106,36 @@ class Namespace2XMLTest < Minitest::Spec
     feature Representable::XML
     feature Representable::XML::Namespace
 
-    namespace 'http://eric.van-der-vlist.com/ns/library'
-    namespace_def lib: 'http://eric.van-der-vlist.com/ns/library'
-    namespace_def hr: 'http://eric.van-der-vlist.com/ns/person'
+    namespace "http://eric.van-der-vlist.com/ns/library"
+    namespace_def lib: "http://eric.van-der-vlist.com/ns/library"
+    namespace_def hr: "http://eric.van-der-vlist.com/ns/person"
 
     property :book, class: Model::Book do
-      namespace 'http://eric.van-der-vlist.com/ns/library'
+      namespace "http://eric.van-der-vlist.com/ns/library"
 
       property :id, attribute: true
       property :isbn
 
       property :author, class: Model::Character do
-        namespace 'http://eric.van-der-vlist.com/ns/person'
+        namespace "http://eric.van-der-vlist.com/ns/person"
 
         property :name
         property :born
       end
 
       collection :character, class: Model::Character do
-        namespace 'http://eric.van-der-vlist.com/ns/library'
+        namespace "http://eric.van-der-vlist.com/ns/library"
 
         property :qualification
 
-        property :name, namespace: 'http://eric.van-der-vlist.com/ns/person'
-        property :born, namespace: 'http://eric.van-der-vlist.com/ns/person'
+        property :name, namespace: "http://eric.van-der-vlist.com/ns/person"
+        property :born, namespace: "http://eric.van-der-vlist.com/ns/person"
       end
     end
   end
   # :map-class end
 
-  it 'renders' do
-
+  it "renders" do
     assert_equal(
       # :map-xml
       "<lib:library xmlns:lib=\"http://eric.van-der-vlist.com/ns/library\" xmlns:hr=\"http://eric.van-der-vlist.com/ns/person\">\n  <lib:book id=\"1\">\n    <lib:isbn>666</lib:isbn>\n    <hr:author>\n      <hr:name>Fowler</hr:name>\n    </hr:author>\n    <lib:character>\n      <lib:qualification>typed</lib:qualification>\n      <hr:name>Frau Java</hr:name>\n      <hr:born>1991</hr:born>\n    </lib:character>\n  </lib:book>\n</lib:library>",
@@ -145,11 +144,11 @@ class Namespace2XMLTest < Minitest::Spec
     )
   end
 
-  it 'parses' do
+  it "parses" do
     lib = Model::Library.new
     # :parse-call
     Library.new(lib).from_xml(
-      %(<lib:library
+      %{<lib:library
   xmlns:lib="http://eric.van-der-vlist.com/ns/library"
   xmlns:hr="http://eric.van-der-vlist.com/ns/person">
   <lib:book id="1">
@@ -165,11 +164,11 @@ class Namespace2XMLTest < Minitest::Spec
       <hr:born>1991</hr:born>
     </lib:character>
   </lib:book>
-</lib:library>)
+</lib:library>}
       # :parse-call end
     )
 
-    #take last line only
+    # take last line only
     xml = lib.book.inspect
     expected = "#<struct Namespace2XMLTest::Model::Book id=\"1\", isbn=\"666\", author=#<struct Namespace2XMLTest::Model::Character name=\"Fowler\", born=nil, qualification=nil>, character=[#<struct Namespace2XMLTest::Model::Character name=\"Frau Java\", born=\"1991\", qualification=\"typed\">]>"
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require "test_helper"
 
 class ForCollectionTest < MiniTest::Spec
   module SongRepresenter
@@ -9,13 +9,13 @@ class ForCollectionTest < MiniTest::Spec
     property :name
   end
 
-  let(:songs) { [Song.new('Days Go By'), Song.new("Can't Take Them All")] }
+  let(:songs) { [Song.new("Days Go By"), Song.new("Can't Take Them All")] }
   let(:json)  { "[{\"name\":\"Days Go By\"},{\"name\":\"Can't Take Them All\"}]" }
 
   # Module.for_collection
   # Decorator.for_collection
   for_formats(
-    hash: [Representable::Hash, out = [{ 'name' => 'Days Go By' }, { 'name' => "Can't Take Them All" }], out],
+    hash: [Representable::Hash, out = [{"name" => "Days Go By"}, {"name" => "Can't Take Them All"}], out],
     json: [Representable::JSON, out = "[{\"name\":\"Days Go By\"},{\"name\":\"Can't Take Them All\"}]", out]
     # :xml  => [Representable::XML,  out="<a><song></song><song></song></a>", out]
   ) do |format, mod, output, input|

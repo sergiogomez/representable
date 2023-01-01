@@ -1,14 +1,18 @@
-require 'test_helper'
+require "test_helper"
 
 class InlineTest < MiniTest::Spec
-  let(:song)    { Song.new('Alive') }
+  let(:song)    { Song.new("Alive") }
   let(:request) { representer.prepare(OpenStruct.new(song: song)) }
 
   {
-    hash: [Representable::Hash, { 'song' => { 'name' => 'Alive' } },
-           { 'song' => { 'name' => "You've Taken Everything" } }],
-    json: [Representable::JSON, '{"song":{"name":"Alive"}}',
-           "{\"song\":{\"name\":\"You've Taken Everything\"}}"],
+    hash: [
+      Representable::Hash, {"song" => {"name" => "Alive"}},
+      {"song" => {"name" => "You've Taken Everything"}}
+    ],
+    json: [
+      Representable::JSON, '{"song":{"name":"Alive"}}',
+      "{\"song\":{\"name\":\"You've Taken Everything\"}}"
+    ],
     xml: [
       Representable::XML, "<open_struct>\n  <song>\n    <name>Alive</name>\n  </song>\n</open_struct>",
       "<open_struct><song><name>You've Taken Everything</name></song>/open_struct>"
@@ -32,13 +36,17 @@ class InlineTest < MiniTest::Spec
   end
 
   {
-    hash: [Representable::Hash, { 'songs' => [{ 'name' => 'Alive' }] },
-           { 'songs' => [{ 'name' => "You've Taken Everything" }] }],
-    json: [Representable::JSON, '{"songs":[{"name":"Alive"}]}',
-           "{\"songs\":[{\"name\":\"You've Taken Everything\"}]}"],
+    hash: [
+      Representable::Hash, {"songs" => [{"name" => "Alive"}]},
+      {"songs" => [{"name" => "You've Taken Everything"}]}
+    ],
+    json: [
+      Representable::JSON, '{"songs":[{"name":"Alive"}]}',
+      "{\"songs\":[{\"name\":\"You've Taken Everything\"}]}"
+    ],
     xml: [
       Representable::XML, "<open_struct>\n  <song>\n    <name>Alive</name>\n  </song>\n</open_struct>",
-      "<open_struct><song><name>You've Taken Everything</name></song></open_struct>", { as: :song }
+      "<open_struct><song><name>You've Taken Everything</name></song></open_struct>", {as: :song}
     ],
     yaml: [Representable::YAML, "---\nsongs:\n- name: Alive\n", "---\nsongs:\n- name: You've Taken Everything\n"]
   }.each do |format, cfg|
@@ -61,14 +69,14 @@ class InlineTest < MiniTest::Spec
     end
   end
 
-  describe 'without :class' do
+  describe "without :class" do
     representer! do
       property :song do
         property :name
       end
     end
 
-    it { _(request.to_hash).must_equal({ 'song' => { 'name' => 'Alive' } }) }
+    it { _(request.to_hash).must_equal({"song" => {"name" => "Alive"}}) }
   end
 
   for_formats(
@@ -89,8 +97,8 @@ class InlineTest < MiniTest::Spec
     end
   end
 
-  describe 'inheriting from outer representer' do
-    let(:request) { Struct.new(:song, :requester).new(song, 'Josephine') }
+  describe "inheriting from outer representer" do
+    let(:request) { Struct.new(:song, :requester).new(song, "Josephine") }
 
     [false, true].each do |is_decorator| # test for module and decorator.
       representer!(decorator: is_decorator) do
@@ -103,14 +111,14 @@ class InlineTest < MiniTest::Spec
 
       let(:decorator) { representer.prepare(request) }
 
-      it { _(decorator.to_hash).must_equal({ 'requester' => 'Josephine', 'song' => { 'name' => 'Alive' } }) }
+      it { _(decorator.to_hash).must_equal({"requester" => "Josephine", "song" => {"name" => "Alive"}}) }
       it {
-        _(decorator.from_hash({ 'song' => { 'name' => "You've Taken Everything" } }).song.name).must_equal "You've Taken Everything"
+        _(decorator.from_hash({"song" => {"name" => "You've Taken Everything"}}).song.name).must_equal "You've Taken Everything"
       }
     end
   end
 
-  describe 'object pollution' do
+  describe "object pollution" do
     representer!(decorator: true) do
       property :song do
         property :name
@@ -155,7 +163,7 @@ class InlineTest < MiniTest::Spec
 
   for_formats(
     {
-      hash: [Representable::Hash, { 'album' => { 'artist' => { 'label' => 'Epitaph' } } }]
+      hash: [Representable::Hash, {"album" => {"artist" => {"label" => "Epitaph"}}}]
       # :xml  => [Representable::XML, "<open_struct></open_struct>"],
       # :yaml => [Representable::YAML, "---\nlabel:\n  label: Epitaph\n  owner: Brett Gurewitz\n"]
     }
@@ -165,18 +173,18 @@ class InlineTest < MiniTest::Spec
       property :label
     end
 
-    describe ':getter with :decorator' do
+    describe ":getter with :decorator" do
       let(:format) { format }
 
       representer!(module: mod) do
-        self.representation_wrap = 'album'
+        self.representation_wrap = "album"
 
         property :artist, getter: ->(_args) { represented }, decorator: ArtistDecorator
       end
 
-      let(:album) { OpenStruct.new(label: 'Epitaph').extend(representer) }
+      let(:album) { OpenStruct.new(label: "Epitaph").extend(representer) }
 
-      it 'renders nested Album-properties in separate section' do
+      it "renders nested Album-properties in separate section" do
         assert_equal_document(render(album), output)
       end
     end
@@ -185,7 +193,7 @@ class InlineTest < MiniTest::Spec
   # test helper methods within inline representer
   for_formats(
     {
-      hash: [Representable::Hash, { 'song' => { 'name' => 'ALIVE' } }],
+      hash: [Representable::Hash, {"song" => {"name" => "ALIVE"}}],
       xml: [Representable::XML, "<request>\n  <song>\n    <name>ALIVE</name>\n  </song>\n</request>"],
       yaml: [Representable::YAML, "---\nsong:\n  name: ALIVE\n"]
     }
@@ -208,7 +216,7 @@ class InlineTest < MiniTest::Spec
         end
       end
 
-      let(:request) { representer.prepare(OpenStruct.new(song: Song.new('Alive'))) }
+      let(:request) { representer.prepare(OpenStruct.new(song: Song.new("Alive"))) }
 
       it do
         assert_equal_document(render(request), output)
@@ -216,7 +224,7 @@ class InlineTest < MiniTest::Spec
     end
   end
 
-  describe 'include module in inline representers' do
+  describe "include module in inline representers" do
     representer! do
       extension = Module.new do
         include Representable::Hash
@@ -233,60 +241,60 @@ class InlineTest < MiniTest::Spec
       _(
         OpenStruct.new(
           song: OpenStruct.new(
-            title: 'The Fever And The Sound',
-            artist: 'Strung Out'
+            title: "The Fever And The Sound",
+            artist: "Strung Out"
           )
         ).extend(representer)
               .to_hash
       )
-        .must_equal({ 'song' => { 'artist' => 'Strung Out', 'title' => 'The Fever And The Sound' } })
+        .must_equal({"song" => {"artist" => "Strung Out", "title" => "The Fever And The Sound"}})
     end
   end
 
   # define method in inline representer
-  describe 'define method in inline representer' do
+  describe "define method in inline representer" do
     Mod = Module.new do
       include Representable::Hash
 
       def song
-        'Object.new'
+        "Object.new"
       end
 
       property :song do
         property :duration
 
         def duration
-          '6:53'
+          "6:53"
         end
       end
     end
 
     it {
       assert_equal(
-        { 'song' => { 'duration' => '6:53' } },
+        {"song" => {"duration" => "6:53"}},
         OpenStruct.new.extend(Mod).to_hash
       )
     }
   end
 
   # define method inline with Decorator
-  describe 'define method inline with Decorator' do
+  describe "define method inline with Decorator" do
     dec = Class.new(Representable::Decorator) do
       include Representable::Hash
 
       def song
-        'Object.new'
+        "Object.new"
       end
 
       property :song, exec_context: :decorator do
         property :duration, exec_context: :decorator
 
         def duration
-          '6:53'
+          "6:53"
         end
       end
     end
 
-    it { _(dec.new(Object.new).to_hash).must_equal('song' => { 'duration' => '6:53' }) }
+    it { _(dec.new(Object.new).to_hash).must_equal("song" => {"duration" => "6:53"}) }
   end
 end

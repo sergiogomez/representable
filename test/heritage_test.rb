@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require "test_helper"
 
 class HeritageTest < Minitest::Spec
   module Hello
     def hello
-      'Hello!'
+      "Hello!"
     end
   end
 
   module Ciao
     def ciao
-      'Ciao!'
+      "Ciao!"
     end
   end
 
@@ -35,16 +35,16 @@ class HeritageTest < Minitest::Spec
     property :id do end # overwrite old :id.
   end
 
-  it 'B must inherit Hello! feature from A' do
-    _(B.representable_attrs.get(:id)[:extend].call(nil).new(nil).hello).must_equal 'Hello!'
+  it "B must inherit Hello! feature from A" do
+    _(B.representable_attrs.get(:id)[:extend].call(nil).new(nil).hello).must_equal "Hello!"
   end
 
-  it 'B must have Ciao from module (feauture) Ciao' do
-    _(B.representable_attrs.get(:id)[:extend].call(nil).new(nil).ciao).must_equal 'Ciao!'
+  it "B must have Ciao from module (feauture) Ciao" do
+    _(B.representable_attrs.get(:id)[:extend].call(nil).new(nil).ciao).must_equal "Ciao!"
   end
 
-  it 'C must inherit Hello! feature from A' do
-    _(C.representable_attrs.get(:id)[:extend].call(nil).new(nil).hello).must_equal 'Hello!'
+  it "C must inherit Hello! feature from A" do
+    _(C.representable_attrs.get(:id)[:extend].call(nil).new(nil).hello).must_equal "Hello!"
   end
 
   module M
@@ -60,7 +60,7 @@ class HeritageTest < Minitest::Spec
 
   let(:obj_extending_N) { Object.new.extend(N) }
 
-  it 'obj should inherit from N, and N from M' do
-    _(obj_extending_N.hello).must_equal 'Hello!'
+  it "obj should inherit from N, and N from M" do
+    _(obj_extending_N.hello).must_equal "Hello!"
   end
 end

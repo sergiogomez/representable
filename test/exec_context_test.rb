@@ -1,67 +1,67 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require "test_helper"
 
 class ExecContextTest < MiniTest::Spec
   for_formats(
-    hash: [Representable::Hash, { Song => 'Rebel Fate' }, { Song => 'Timing' }]
+    hash: [Representable::Hash, {Song => "Rebel Fate"}, {Song => "Timing"}]
     # :xml  => [Representable::XML, "<open_struct>\n  <song>\n    <name>Alive</name>\n  </song>\n</open_struct>", "<open_struct><song><name>You've Taken Everything</name></song>/open_struct>"],
     # :yaml => [Representable::YAML, "---\nsong:\n  name: Alive\n", "---\nsong:\n  name: You've Taken Everything\n"],
   ) do |format, mod, input, output|
-    let(:song) { representer.prepare(Song.new('Timing')) }
+    let(:song) { representer.prepare(Song.new("Timing")) }
     let(:format) { format }
 
-    describe 'exec_context: nil' do
+    describe "exec_context: nil" do
       representer!(module: mod) do
         property :name, as: ->(*) { self.class }
       end
 
       it { assert_equal_document(render(song), output) }
-      it { _(parse(song, input).name).must_equal 'Rebel Fate' }
+      it { _(parse(song, input).name).must_equal "Rebel Fate" }
     end
 
-    describe 'exec_context: :decorator' do
+    describe "exec_context: :decorator" do
       representer!(module: mod) do
         property :name, as: ->(*) { self.class }, exec_context: :decorator
       end
 
       it { assert_equal_document(render(song), output) }
-      it { _(parse(song, input).name).must_equal 'Rebel Fate' }
+      it { _(parse(song, input).name).must_equal "Rebel Fate" }
     end
 
-    describe 'exec_context: :binding' do
+    describe "exec_context: :binding" do
       representer!(module: mod) do
         property :name,
                  as: ->(*) { self.class }, # to actually test
                  exec_context: :binding,
-                 setter: lambda { |options|
+                 setter: ->(options) {
                            options[:represented].name = options[:fragment] # to make parsing work.
                          }
       end
 
       it {
-        assert_equal_document(render(song), { Representable::Hash::Binding => 'name' })
+        assert_equal_document(render(song), {Representable::Hash::Binding => "name"})
       }
-      it { _(parse(song, { Representable::Hash::Binding => 'Rebel Fate' }).name).must_equal 'Rebel Fate' }
+      it { _(parse(song, {Representable::Hash::Binding => "Rebel Fate"}).name).must_equal "Rebel Fate" }
     end
 
-    describe 'Decorator' do
+    describe "Decorator" do
       # DISCUSS: do we need this test?
-      describe 'exec_context: nil' do
+      describe "exec_context: nil" do
         representer!(module: mod, decorator: true) do
           property :name, as: ->(*) { self.class }
         end
 
         it { assert_equal_document(render(song), output) }
-        it { _(parse(song, input).name).must_equal 'Rebel Fate' }
+        it { _(parse(song, input).name).must_equal "Rebel Fate" }
       end
 
-      describe 'exec_context: :decorator' do # this tests if lambdas are run in the right context, if methods are called in the right context and if we can access the represented object.
+      describe "exec_context: :decorator" do # this tests if lambdas are run in the right context, if methods are called in the right context and if we can access the represented object.
         representer!(module: mod, decorator: true) do
           property :name, as: ->(*) { self.class.superclass }, exec_context: :decorator
 
           define_method :name do # def in Decorator class.
-            'Timebomb'
+            "Timebomb"
           end
 
           define_method :"name=" do |v| # def in Decorator class.
@@ -69,23 +69,23 @@ class ExecContextTest < MiniTest::Spec
           end
         end
 
-        it { assert_equal_document(render(song), { Representable::Decorator => 'Timebomb' }) }
-        it { _(parse(song, { Representable::Decorator => 'Listless' }).name).must_equal 'Listless' }
+        it { assert_equal_document(render(song), {Representable::Decorator => "Timebomb"}) }
+        it { _(parse(song, {Representable::Decorator => "Listless"}).name).must_equal "Listless" }
       end
 
       # DISCUSS: do we need this test?
-      describe 'exec_context: :binding' do
+      describe "exec_context: :binding" do
         representer!(module: mod, decorator: true) do
           property :name,
                    as: ->(*) { self.class }, # to actually test
                    exec_context: :binding,
-                   setter: lambda { |options|
+                   setter: ->(options) {
                              options[:represented].name = options[:fragment] # to make parsing work.
                            }
         end
 
-        it { assert_equal_document(render(song), { Representable::Hash::Binding => 'name' }) }
-        it('xxx') { _(parse(song, { Representable::Hash::Binding => 'Rebel Fate' }).name).must_equal 'Rebel Fate' }
+        it { assert_equal_document(render(song), {Representable::Hash::Binding => "name"}) }
+        it("xxx") { _(parse(song, {Representable::Hash::Binding => "Rebel Fate"}).name).must_equal "Rebel Fate" }
       end
     end
   end

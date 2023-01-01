@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require "test_helper"
 
 # TODO: rename/restructure to CollectionTest.
 class GenericTest < MiniTest::Spec
   let(:new_album)  { OpenStruct.new.extend(representer) }
-  let(:album)      { OpenStruct.new(songs: ['Fuck Armageddon']).extend(representer) }
-  let(:song) { OpenStruct.new(title: 'Resist Stance') }
+  let(:album)      { OpenStruct.new(songs: ["Fuck Armageddon"]).extend(representer) }
+  let(:song) { OpenStruct.new(title: "Resist Stance") }
   let(:song_representer) do
     Module.new do
       include Representable::Hash
@@ -14,7 +14,7 @@ class GenericTest < MiniTest::Spec
     end
   end
 
-  describe '::collection' do
+  describe "::collection" do
     representer! do
       collection :songs
     end
@@ -24,19 +24,19 @@ class GenericTest < MiniTest::Spec
       _(new_album.songs).must_be_nil
     end
 
-    it 'leaves properties untouched' do
+    it "leaves properties untouched" do
       album.from_hash({})
       # TODO: test property.
-      _(album.songs).must_equal ['Fuck Armageddon'] # when the collection is not present in the incoming hash, this propery stays untouched.
+      _(album.songs).must_equal ["Fuck Armageddon"] # when the collection is not present in the incoming hash, this propery stays untouched.
     end
 
     # when collection is nil, it doesn't get rendered:
     for_formats(
       hash: [Representable::Hash, {}],
-      xml: [Representable::XML, '<open_struct></open_struct>'],
+      xml: [Representable::XML, "<open_struct></open_struct>"],
       yaml: [Representable::YAML, "--- {}\n"] # FIXME: this doesn't look right.
     ) do |format, mod, output, _input|
-      describe 'nil collections' do
+      describe "nil collections" do
         let(:format) { format }
 
         representer!(module: mod) do
@@ -54,11 +54,11 @@ class GenericTest < MiniTest::Spec
 
     # when collection is set but empty, render the empty collection.
     for_formats(
-      hash: [Representable::Hash, { 'songs' => [] }],
+      hash: [Representable::Hash, {"songs" => []}],
       # :xml  => [Representable::XML, "<open_struct><songs/></open_struct>"],
       yaml: [Representable::YAML, "---\nsongs: []\n"]
     ) do |format, mod, output, _input|
-      describe 'empty collections' do
+      describe "empty collections" do
         let(:format) { format }
 
         representer!(module: mod) do
@@ -109,7 +109,7 @@ class GenericTest < MiniTest::Spec
       end
 
       it "doesn't change represented object" do
-        _(song.extend(representer).send("from_#{format}", input).title).must_equal 'Resist Stance'
+        _(song.extend(representer).send("from_#{format}", input).title).must_equal "Resist Stance"
       end
     end
   end

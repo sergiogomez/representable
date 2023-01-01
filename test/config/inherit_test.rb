@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require "test_helper"
 
 # tests defining representers in modules, decorators and classes and the inheritance when combined.
 
@@ -40,7 +40,8 @@ class ConfigInheritTest < MiniTest::Spec
   end
 
   it { _(InheritingDecorator.definitions.keys).must_equal %w[title artist location] }
-  it { assert_cloned(InheritingDecorator, Decorator, 'title') }
+
+  it { assert_cloned(InheritingDecorator, Decorator, "title") }
   it do
     _(InheritingDecorator.representable_attrs.get(:artist).representer_module.object_id).wont_equal Decorator.representable_attrs.get(:artist).representer_module.object_id
   end
@@ -53,6 +54,7 @@ class ConfigInheritTest < MiniTest::Spec
   end
 
   it { _(InheritingAndIncludingDecorator.definitions.keys).must_equal %w[title artist genre location] }
+
   it { assert_cloned(InheritingAndIncludingDecorator, GenreModule, :genre) }
 
   # in module ---------------------------------------------------
@@ -61,7 +63,7 @@ class ConfigInheritTest < MiniTest::Spec
     property :title
   end
 
-  it { _(Module.definitions.keys).must_equal ['title'] }
+  it { _(Module.definitions.keys).must_equal ["title"] }
 
   # in module including module
   module SubModule
@@ -72,6 +74,7 @@ class ConfigInheritTest < MiniTest::Spec
   end
 
   it { _(SubModule.definitions.keys).must_equal %w[title location] }
+
   it { assert_cloned(SubModule, Module, :title) }
 
   # including preserves order
@@ -92,6 +95,7 @@ class ConfigInheritTest < MiniTest::Spec
   end
 
   it { _(Class.definitions.keys).must_equal %w[genre title location] }
+
   it { assert_cloned(Class, IncludingModule, :title) }
   it { assert_cloned(Class, IncludingModule, :location) }
   it { assert_cloned(Class, IncludingModule, :genre) }
@@ -111,7 +115,7 @@ class ConfigInheritTest < MiniTest::Spec
     property :title
   end
 
-  it { _(RepresenterClass.definitions.keys).must_equal ['title'] }
+  it { _(RepresenterClass.definitions.keys).must_equal ["title"] }
 
   # in inheriting class
   class InheritingClass < RepresenterClass
@@ -120,6 +124,7 @@ class ConfigInheritTest < MiniTest::Spec
   end
 
   it { _(InheritingClass.definitions.keys).must_equal %w[title location] }
+
   it { assert_cloned(InheritingClass, RepresenterClass, :title) }
 
   # in inheriting class and including

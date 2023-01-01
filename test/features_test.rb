@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require "test_helper"
 
 class FeaturesTest < MiniTest::Spec
   module Title
-    def title = 'Is It A Lie'
+    def title; "Is It A Lie"; end
   end
 
   module Length
-    def length = '2:31'
+    def length; "2:31"; end
   end
 
-  definition = lambda {
+  definition = -> {
     feature Title
     feature Length
 
@@ -25,7 +25,7 @@ class FeaturesTest < MiniTest::Spec
 
   let(:song) { OpenStruct.new(details: Object.new) }
 
-  describe 'Module' do
+  describe "Module" do
     representer! do
       instance_exec(&definition)
     end
@@ -33,14 +33,14 @@ class FeaturesTest < MiniTest::Spec
     it {
       _(song.extend(representer).to_hash).must_equal(
         {
-          'title' => 'Is It A Lie', 'length' => '2:31',
-          'details' => { 'title' => 'Is It A Lie' }
+          "title" => "Is It A Lie", "length" => "2:31",
+          "details" => {"title" => "Is It A Lie"}
         }
       )
     }
   end
 
-  describe 'Decorator' do
+  describe "Decorator" do
     representer!(decorator: true) do
       instance_exec(&definition)
     end
@@ -48,8 +48,8 @@ class FeaturesTest < MiniTest::Spec
     it {
       _(representer.new(song).to_hash).must_equal(
         {
-          'title' => 'Is It A Lie', 'length' => '2:31',
-          'details' => { 'title' => 'Is It A Lie' }
+          "title" => "Is It A Lie", "length" => "2:31",
+          "details" => {"title" => "Is It A Lie"}
         }
       )
     }
@@ -59,7 +59,7 @@ end
 class FeatureInclusionOrderTest < MiniTest::Spec
   module Title
     def title
-      'I was first!'
+      "I was first!"
     end
   end
 
@@ -83,8 +83,8 @@ class FeatureInclusionOrderTest < MiniTest::Spec
   it do
     _(representer.new(OpenStruct.new(song: Object)).to_hash).must_equal(
       {
-        'title' => 'I am number two, I was first!',
-        'song' => { 'title' => 'I am number two, I was first!' }
+        "title" => "I am number two, I was first!",
+        "song" => {"title" => "I am number two, I was first!"}
       }
     )
   end

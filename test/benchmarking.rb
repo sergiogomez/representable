@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'test_helper'
-require 'benchmark'
+require "test_helper"
+require "benchmark"
 
-SONG_PROPERTIES = 1000.times.collect do |i|
+SONG_PROPERTIES = Array.new(1000) do |i|
   "property_#{i}"
 end
 
@@ -27,22 +27,22 @@ module AlbumRepresenter
 end
 
 def random_song
-  attrs = Hash[SONG_PROPERTIES.collect { |n| [n, n] }]
+  attrs = SONG_PROPERTIES.to_h { |n| [n, n] }
   OpenStruct.new(attrs)
 end
 
 times = []
 
 3.times.each do
-  album = OpenStruct.new(songs: 100.times.collect { random_song })
+  album = OpenStruct.new(songs: Array.new(100) { random_song })
 
   times << Benchmark.measure do
-    puts '================ next!'
+    puts "================ next!"
     album.extend(AlbumRepresenter).to_json
   end
 end
 
-puts times.join('')
+puts times.join
 
 # 100 songs, 100 attrs
 #  0.050000   0.000000   0.050000 (  0.093157)

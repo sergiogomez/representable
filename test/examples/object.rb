@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require "test_helper"
 
-require 'ostruct'
+require "ostruct"
 
 source = OpenStruct.new(
-  name: '30 Years Live', songs: [
-    OpenStruct.new(id: 1, title: 'Dear Beloved'), OpenStruct.new(id: 2, title: 'Fuck Armageddon')
+  name: "30 Years Live", songs: [
+    OpenStruct.new(id: 1, title: "Dear Beloved"), OpenStruct.new(id: 2, title: "Fuck Armageddon")
   ]
 )
 
-require 'representable/object'
+require "representable/object"
 
 class AlbumRepresenter < Representable::Decorator
   include Representable::Object

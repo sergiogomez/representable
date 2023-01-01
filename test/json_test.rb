@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'test_helper'
-require 'json'
+require "test_helper"
+require "json"
 
 module JsonTest
   class JSONPublicMethodsTest < Minitest::Spec
@@ -15,12 +15,12 @@ module JsonTest
 
     let(:json) { '{"id":1,"name":"Rancid"}' }
 
-    it { _(BandRepresenter.new(Band.new).from_json(json)[:id, :name]).must_equal [1, 'Rancid'] }
-    it { _(BandRepresenter.new(Band.new).parse(json)[:id, :name]).must_equal [1, 'Rancid'] }
+    it { _(BandRepresenter.new(Band.new).from_json(json)[:id, :name]).must_equal [1, "Rancid"] }
+    it { _(BandRepresenter.new(Band.new).parse(json)[:id, :name]).must_equal [1, "Rancid"] }
 
     #---
     # to_json
-    let(:band) { Band.new(1, 'Rancid') }
+    let(:band) { Band.new(1, "Rancid") }
 
     it { _(BandRepresenter.new(band).to_json).must_equal json }
     it { _(BandRepresenter.new(band).render).must_equal json }
@@ -30,7 +30,7 @@ module JsonTest
     Json = Representable::JSON
     Def = Representable::Definition
 
-    describe 'JSON module' do
+    describe "JSON module" do
       before do
         @Band = Class.new do
           include Representable::JSON
@@ -46,80 +46,86 @@ module JsonTest
         @band = @Band.new
       end
 
-      describe '#from_json' do
+      describe "#from_json" do
         before do
           @band = @Band.new
-          @json = { name: 'Nofx', label: 'NOFX' }.to_json
+          @json = {name: "Nofx", label: "NOFX"}.to_json
         end
 
-        it 'parses JSON and assigns properties' do
+        it "parses JSON and assigns properties" do
           @band.from_json(@json)
+
           assert_equal %w[Nofx NOFX], [@band.name, @band.label]
         end
       end
 
-      describe '#from_hash' do
+      describe "#from_hash" do
         before do
           @band = @Band.new
-          @hash = { 'name' => 'Nofx', 'label' => 'NOFX' }
+          @hash = {"name" => "Nofx", "label" => "NOFX"}
         end
 
-        it 'receives hash and assigns properties' do
+        it "receives hash and assigns properties" do
           @band.from_hash(@hash)
+
           assert_equal %w[Nofx NOFX], [@band.name, @band.label]
         end
 
-        it 'respects :wrap option' do
-          @band.from_hash({ 'band' => { 'name' => 'This Is A Standoff' } }, wrap: :band)
-          assert_equal 'This Is A Standoff', @band.name
+        it "respects :wrap option" do
+          @band.from_hash({"band" => {"name" => "This Is A Standoff"}}, wrap: :band)
+
+          assert_equal "This Is A Standoff", @band.name
         end
 
-        it 'respects :wrap option over representation_wrap' do
+        it "respects :wrap option over representation_wrap" do
           @Band.class_eval do
             self.representation_wrap = :group
           end
-          @band.from_hash({ 'band' => { 'name' => 'This Is A Standoff' } }, wrap: :band)
-          assert_equal 'This Is A Standoff', @band.name
+          @band.from_hash({"band" => {"name" => "This Is A Standoff"}}, wrap: :band)
+
+          assert_equal "This Is A Standoff", @band.name
         end
       end
 
-      describe '#to_json' do
-        it 'delegates to #to_hash and returns string' do
-          assert_json '{"name":"Rise Against"}', @Band.new('Rise Against').to_json
+      describe "#to_json" do
+        it "delegates to #to_hash and returns string" do
+          assert_json '{"name":"Rise Against"}', @Band.new("Rise Against").to_json
         end
       end
 
-      describe '#to_hash' do
-        it 'returns unwrapped hash' do
-          hash = @Band.new('Rise Against').to_hash
-          assert_equal({ 'name' => 'Rise Against' }, hash)
+      describe "#to_hash" do
+        it "returns unwrapped hash" do
+          hash = @Band.new("Rise Against").to_hash
+
+          assert_equal({"name" => "Rise Against"}, hash)
         end
 
-        it 'respects :wrap option' do
-          assert_equal({ band: { 'name' => 'NOFX' } }, @Band.new('NOFX').to_hash(wrap: :band))
+        it "respects :wrap option" do
+          assert_equal({band: {"name" => "NOFX"}}, @Band.new("NOFX").to_hash(wrap: :band))
         end
 
-        it 'respects :wrap option over representation_wrap' do
+        it "respects :wrap option over representation_wrap" do
           @Band.class_eval do
             self.representation_wrap = :group
           end
-          assert_equal({ band: { 'name' => 'Rise Against' } }, @Band.new('Rise Against').to_hash(wrap: :band))
+
+          assert_equal({band: {"name" => "Rise Against"}}, @Band.new("Rise Against").to_hash(wrap: :band))
         end
       end
 
-      describe '#build_for' do
-        it 'returns TextBinding' do
+      describe "#build_for" do
+        it "returns TextBinding" do
           assert_kind_of Representable::Hash::Binding, Representable::Hash::Binding.build_for(Def.new(:band))
         end
 
-        it 'returns CollectionBinding' do
+        it "returns CollectionBinding" do
           assert_kind_of Representable::Hash::Binding::Collection,
                          Representable::Hash::Binding.build_for(Def.new(:band, collection: true))
         end
       end
     end
 
-    describe 'DCI' do
+    describe "DCI" do
       module SongRepresenter
         include Representable::JSON
         property :name
@@ -131,7 +137,7 @@ module JsonTest
         collection :songs, class: Song, extend: SongRepresenter
       end
 
-      it 'allows adding the representer by using #extend' do
+      it "allows adding the representer by using #extend" do
         module BandRepresenter
           include Representable::JSON
           property :name
@@ -139,7 +145,7 @@ module JsonTest
 
         civ = Object.new
         civ.instance_eval do
-          def name = 'CIV'
+          def name; "CIV"; end
 
           def name=(v)
             @name = v
@@ -147,50 +153,53 @@ module JsonTest
         end
 
         civ.extend(BandRepresenter)
+
         assert_json '{"name":"CIV"}', civ.to_json
       end
 
-      it 'extends contained models when serializing' do
-        @album = Album.new([Song.new('I Hate My Brain'), mr = Song.new('Mr. Charisma')], mr)
+      it "extends contained models when serializing" do
+        @album = Album.new([Song.new("I Hate My Brain"), mr = Song.new("Mr. Charisma")], mr)
         @album.extend(AlbumRepresenter)
 
         assert_json '{"best_song":{"name":"Mr. Charisma"},"songs":[{"name":"I Hate My Brain"},{"name":"Mr. Charisma"}]}',
                     @album.to_json
       end
 
-      it 'extends contained models when deserializing' do
+      it "extends contained models when deserializing" do
         # @album = Album.new(Song.new("I Hate My Brain"), Song.new("Mr. Charisma"))
         @album = Album.new
         @album.extend(AlbumRepresenter)
 
         @album.from_json('{"best_song":{"name":"Mr. Charisma"},"songs":[{"name":"I Hate My Brain"},{"name":"Mr. Charisma"}]}')
-        assert_equal 'Mr. Charisma', @album.best_song.name
+
+        assert_equal "Mr. Charisma", @album.best_song.name
       end
     end
   end
 
   class PropertyTest < MiniTest::Spec
-    describe 'property :name' do
+    describe "property :name" do
       class Band
         include Representable::JSON
         property :name
         attr_accessor :name
       end
 
-      it '#from_json creates correct accessors' do
-        band = Band.new.from_json({ name: 'Bombshell Rocks' }.to_json)
-        assert_equal 'Bombshell Rocks', band.name
+      it "#from_json creates correct accessors" do
+        band = Band.new.from_json({name: "Bombshell Rocks"}.to_json)
+
+        assert_equal "Bombshell Rocks", band.name
       end
 
-      it '#to_json serializes correctly' do
+      it "#to_json serializes correctly" do
         band = Band.new
-        band.name = 'Cigar'
+        band.name = "Cigar"
 
         assert_json '{"name":"Cigar"}', band.to_json
       end
     end
 
-    describe ':class => Item' do
+    describe ":class => Item" do
       class Label
         include Representable::JSON
         property :name
@@ -203,21 +212,22 @@ module JsonTest
         attr_accessor :label
       end
 
-      it '#from_json creates one Item instance' do
+      it "#from_json creates one Item instance" do
         album = Album.new.from_json('{"label":{"name":"Fat Wreck"}}')
-        assert_equal 'Fat Wreck', album.label.name
+
+        assert_equal "Fat Wreck", album.label.name
       end
 
-      it '#to_json serializes' do
+      it "#to_json serializes" do
         label = Label.new
-        label.name = 'Fat Wreck'
+        label.name = "Fat Wreck"
         album = Album.new
         album.label = label
 
         assert_json '{"label":{"name":"Fat Wreck"}}', album.to_json
       end
 
-      describe ':different_name, :class => Label' do
+      describe ":different_name, :class => Label" do
         before do
           @Album = Class.new do
             include Representable::JSON
@@ -226,9 +236,9 @@ module JsonTest
           end
         end
 
-        it '#to_xml respects the different name' do
+        it "#to_xml respects the different name" do
           label = Label.new
-          label.name = 'Fat Wreck'
+          label.name = "Fat Wreck"
           album = @Album.new
           album.seller = label
 
@@ -237,54 +247,57 @@ module JsonTest
       end
     end
 
-    describe ':as => :songName' do
+    describe ":as => :songName" do
       class Song
         include Representable::JSON
         property :name, as: :songName
         attr_accessor :name
       end
 
-      it 'respects :as in #from_json' do
-        song = Song.new.from_json({ songName: 'Run To The Hills' }.to_json)
-        assert_equal 'Run To The Hills', song.name
+      it "respects :as in #from_json" do
+        song = Song.new.from_json({songName: "Run To The Hills"}.to_json)
+
+        assert_equal "Run To The Hills", song.name
       end
 
-      it 'respects :as in #to_json' do
+      it "respects :as in #to_json" do
         song = Song.new
-        song.name = '22 Acacia Avenue'
+        song.name = "22 Acacia Avenue"
+
         assert_json '{"songName":"22 Acacia Avenue"}', song.to_json
       end
     end
   end
 
   class CollectionTest < MiniTest::Spec
-    describe 'collection :name' do
+    describe "collection :name" do
       class CD
         include Representable::JSON
         collection :songs
         attr_accessor :songs
       end
 
-      it '#from_json creates correct accessors' do
-        cd = CD.new.from_json({ songs: ['Out in the cold', 'Microphone'] }.to_json)
-        assert_equal ['Out in the cold', 'Microphone'], cd.songs
+      it "#from_json creates correct accessors" do
+        cd = CD.new.from_json({songs: ["Out in the cold", "Microphone"]}.to_json)
+
+        assert_equal ["Out in the cold", "Microphone"], cd.songs
       end
 
-      it 'zzz#to_json serializes correctly' do
+      it "zzz#to_json serializes correctly" do
         cd = CD.new
-        cd.songs = ['Out in the cold', 'Microphone']
+        cd.songs = ["Out in the cold", "Microphone"]
 
         assert_json '{"songs":["Out in the cold","Microphone"]}', cd.to_json
       end
     end
 
-    describe 'collection :name, :class => Band' do
+    describe "collection :name, :class => Band" do
       class Band
         include Representable::JSON
         property :name
         attr_accessor :name
 
-        def initialize(name = '')
+        def initialize(name = "")
           self.name = name
         end
       end
@@ -295,43 +308,45 @@ module JsonTest
         attr_accessor :bands
       end
 
-      describe '#from_json' do
-        it 'pushes collection items to array' do
+      describe "#from_json" do
+        it "pushes collection items to array" do
           cd = Compilation.new.from_json(
             {
               bands: [
-                { name: 'Cobra Skulls' },
-                { name: 'Diesel Boy' }
+                {name: "Cobra Skulls"},
+                {name: "Diesel Boy"}
               ]
             }.to_json
           )
-          assert_equal ['Cobra Skulls', 'Diesel Boy'], cd.bands.map(&:name).sort
+
+          assert_equal ["Cobra Skulls", "Diesel Boy"], cd.bands.map(&:name).sort
         end
       end
 
-      it 'responds to #to_json' do
+      it "responds to #to_json" do
         cd = Compilation.new
-        cd.bands = [Band.new('Diesel Boy'), Band.new('Bad Religion')]
+        cd.bands = [Band.new("Diesel Boy"), Band.new("Bad Religion")]
 
         assert_json '{"bands":[{"name":"Diesel Boy"},{"name":"Bad Religion"}]}', cd.to_json
       end
     end
 
-    describe ':as => :songList' do
+    describe ":as => :songList" do
       class Songs
         include Representable::JSON
         collection :tracks, as: :songList
         attr_accessor :tracks
       end
 
-      it 'respects :as in #from_json' do
-        songs = Songs.new.from_json({ songList: ['Out in the cold', 'Microphone'] }.to_json)
-        assert_equal ['Out in the cold', 'Microphone'], songs.tracks
+      it "respects :as in #from_json" do
+        songs = Songs.new.from_json({songList: ["Out in the cold", "Microphone"]}.to_json)
+
+        assert_equal ["Out in the cold", "Microphone"], songs.tracks
       end
 
-      it 'respects option in #to_json' do
+      it "respects option in #to_json" do
         songs = Songs.new
-        songs.tracks = ['Out in the cold', 'Microphone']
+        songs.tracks = ["Out in the cold", "Microphone"]
 
         assert_json '{"songList":["Out in the cold","Microphone"]}', songs.to_json
       end
@@ -339,27 +354,28 @@ module JsonTest
   end
 
   class HashTest < MiniTest::Spec
-    describe 'hash :songs' do
+    describe "hash :songs" do
       representer!(module: Representable::JSON) do
         hash :songs
       end
 
       subject { OpenStruct.new.extend(representer) }
 
-      it 'renders with #to_json' do
-        subject.songs = { one: '65', two: 'Emo Boy' }
+      it "renders with #to_json" do
+        subject.songs = {one: "65", two: "Emo Boy"}
+
         assert_json '{"songs":{"one":"65","two":"Emo Boy"}}', subject.to_json
       end
 
-      it 'parses with #from_json' do
+      it "parses with #from_json" do
         assert_equal(
-          { 'one' => '65', 'two' => ['Emo Boy'] },
+          {"one" => "65", "two" => ["Emo Boy"]},
           subject.from_json('{"songs":{"one":"65","two":["Emo Boy"]}}').songs
         )
       end
     end
 
-    describe 'hash :songs, :class => Song' do
+    describe "hash :songs, :class => Song" do
       representer!(module: Representable::JSON) do
         hash :songs, extend: Module.new {
                                include Representable::JSON
@@ -367,20 +383,20 @@ module JsonTest
                              }, class: Song
       end
 
-      it 'renders' do
-        _(OpenStruct.new(songs: { '7' => Song.new('Contemplation') }).extend(representer).to_hash).must_equal('songs' => { '7' => { 'name' => 'Contemplation' } })
+      it "renders" do
+        _(OpenStruct.new(songs: {"7" => Song.new("Contemplation")}).extend(representer).to_hash).must_equal("songs" => {"7" => {"name" => "Contemplation"}})
       end
 
-      describe 'parsing' do
+      describe "parsing" do
         subject { OpenStruct.new.extend(representer) }
-        let(:hsh) { { '7' => { 'name' => 'Contemplation' } } }
+        let(:hsh) { {"7" => {"name" => "Contemplation"}} }
 
-        it 'parses incoming hash' do
-          _(subject.from_hash('songs' => hsh).songs).must_equal({ '7' => Song.new('Contemplation') })
+        it "parses incoming hash" do
+          _(subject.from_hash("songs" => hsh).songs).must_equal({"7" => Song.new("Contemplation")})
         end
 
         it "doesn't modify the incoming hash" do
-          subject.from_hash('songs' => incoming_hash = hsh.dup)
+          subject.from_hash("songs" => incoming_hash = hsh.dup)
           _(hsh).must_equal incoming_hash
         end
       end

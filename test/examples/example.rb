@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'bundler'
+require "bundler"
 Bundler.setup
 
-require 'representable/yaml'
-require 'ostruct'
+require "representable/yaml"
+require "ostruct"
 
 def reset_representer(*module_name)
   module_name.each do |mod|
@@ -17,7 +17,7 @@ end
 class Song < OpenStruct
 end
 
-song = Song.new(title: 'Fallout', track: 1)
+song = Song.new(title: "Fallout", track: 1)
 
 module SongRepresenter
   include Representable::JSON
@@ -54,7 +54,7 @@ module SongRepresenter
   collection :composers
 end
 
-song = Song.new(title: 'Fallout', composers: ['Stewart Copeland', 'Sting'])
+song = Song.new(title: "Fallout", composers: ["Stewart Copeland", "Sting"])
 puts song.extend(SongRepresenter).to_json
 
 ######### nesting types
@@ -74,7 +74,7 @@ module AlbumRepresenter
   property :song, extend: SongRepresenter, class: Song
 end
 
-album = Album.new(name: 'The Police', song: song)
+album = Album.new(name: "The Police", song: song)
 puts album.extend(AlbumRepresenter).to_json
 
 reset_representer(AlbumRepresenter)
@@ -86,7 +86,7 @@ module AlbumRepresenter
   collection :songs, extend: SongRepresenter, class: Song
 end
 
-album = Album.new(name: 'The Police', songs: [song, Song.new(title: 'Synchronicity')])
+album = Album.new(name: "The Police", songs: [song, Song.new(title: "Synchronicity")])
 puts album.extend(AlbumRepresenter).to_json
 
 album = Album.new.extend(AlbumRepresenter).from_json(
@@ -106,7 +106,7 @@ module AlbumRepresenter
   end
 end
 
-puts Album.new(name: 'The Police')
+puts Album.new(name: "The Police")
           .extend(AlbumRepresenter).to_json
 
 reset_representer(SongRepresenter)
@@ -126,11 +126,11 @@ module CoverSongRepresenter
   property :covered_by
 end
 
-song = Song.new(title: 'Truth Hits Everybody', covered_by: 'No Use For A Name')
+song = Song.new(title: "Truth Hits Everybody", covered_by: "No Use For A Name")
 puts song.extend(CoverSongRepresenter).to_json
 
 ### XML
-require 'representable/xml'
+require "representable/xml"
 module SongRepresenter
   include Representable::XML
 
@@ -138,7 +138,7 @@ module SongRepresenter
   property :track
   collection :composers
 end
-song = Song.new(title: 'Fallout', composers: ['Stewart Copeland', 'Sting'])
+song = Song.new(title: "Fallout", composers: ["Stewart Copeland", "Sting"])
 puts song.extend(SongRepresenter).to_xml
 
 reset_representer(SongRepresenter)
@@ -192,7 +192,7 @@ module SongRepresenter
   property :track
 end
 song = Song.new.extend(SongRepresenter)
-song.from_hash({ title: 'Fallout', track: 1 })
+song.from_hash({title: "Fallout", track: 1})
 puts song
 
 ######### custom methods in representer (using helpers)
@@ -203,9 +203,11 @@ puts song
 class CoverSong < Song
 end
 
-songs = [Song.new(title: 'Weirdo', track: 5),
-         CoverSong.new(title: 'Truth Hits Everybody', track: 6, copyright: 'The Police')]
-album = Album.new(name: 'Incognito', songs: songs)
+songs = [
+  Song.new(title: "Weirdo", track: 5),
+  CoverSong.new(title: "Truth Hits Everybody", track: 6, copyright: "The Police")
+]
+album = Album.new(name: "Incognito", songs: songs)
 
 reset_representer(SongRepresenter, AlbumRepresenter)
 
@@ -240,15 +242,15 @@ module AlbumRepresenter
   property :name
   collection :songs,
              extend: ->(song) { song.is_a?(CoverSong) ? CoverSongRepresenter : SongRepresenter },
-             class: ->(hsh) { hsh.key?('copyright') ? CoverSong : Song } #=> {"title"=>"Weirdo", "track"=>5}
+             class: ->(hsh) { hsh.key?("copyright") ? CoverSong : Song } #=> {"title"=>"Weirdo", "track"=>5}
 end
 
 album = Album.new.extend(AlbumRepresenter).from_hash(
   {
-    'name' => 'Incognito',
-    'songs' => [
-      { 'title' => 'Weirdo', 'track' => 5 },
-      { 'title' => 'Truth Hits Everybody', 'track' => 6, 'copyright' => 'The Police' }
+    "name" => "Incognito",
+    "songs" => [
+      {"title" => "Weirdo", "track" => 5},
+      {"title" => "Truth Hits Everybody", "track" => 6, "copyright" => "The Police"}
     ]
   }
 )
@@ -262,15 +264,15 @@ module AlbumRepresenter
   property :name
   collection :songs,
              extend: ->(song) { song.is_a?(CoverSong) ? CoverSongRepresenter : SongRepresenter },
-             instance: ->(hsh) { hsh.key?('copyright') ? CoverSong.new : Song.new(original: true) }
+             instance: ->(hsh) { hsh.key?("copyright") ? CoverSong.new : Song.new(original: true) }
 end
 
 album = Album.new.extend(AlbumRepresenter).from_hash(
   {
-    'name' => 'Incognito',
-    'songs' => [
-      { 'title' => 'Weirdo', 'track' => 5 },
-      { 'title' => 'Truth Hits Everybody', 'track' => 6, 'copyright' => 'The Police' }
+    "name" => "Incognito",
+    "songs" => [
+      {"title" => "Weirdo", "track" => 5},
+      {"title" => "Truth Hits Everybody", "track" => 6, "copyright" => "The Police"}
     ]
   }
 )
@@ -287,7 +289,7 @@ module SongRepresenter
   hash :ratings
 end
 
-puts Song.new(title: 'Bliss', ratings: { 'Rolling Stone' => 4.9, 'FryZine' => 4.5 }).extend(SongRepresenter).to_json
+puts Song.new(title: "Bliss", ratings: {"Rolling Stone" => 4.9, "FryZine" => 4.5}).extend(SongRepresenter).to_json
 
 ######### JSON::Hash
 
@@ -295,22 +297,22 @@ module FavoriteSongsRepresenter
   include Representable::JSON::Hash
 end
 
-puts({ 'Nick' => 'Hyper Music', 'El' => 'Blown In The Wind' }.extend(FavoriteSongsRepresenter).to_json)
+puts({"Nick" => "Hyper Music", "El" => "Blown In The Wind"}.extend(FavoriteSongsRepresenter).to_json)
 
-require 'representable/json/hash'
+require "representable/json/hash"
 module FavoriteSongsRepresenter
   include Representable::JSON::Hash
 
   values extend: SongRepresenter, class: Song
 end
 
-puts({ 'Nick' => Song.new(title: 'Hyper Music') }.extend(FavoriteSongsRepresenter).to_json)
+puts({"Nick" => Song.new(title: "Hyper Music")}.extend(FavoriteSongsRepresenter).to_json)
 
-require 'representable/json/collection'
+require "representable/json/collection"
 module SongsRepresenter
   include Representable::JSON::Collection
 
   items extend: SongRepresenter, class: Song
 end
 
-puts [Song.new(title: 'Hyper Music'), Song.new(title: 'Screenager')].extend(SongsRepresenter).to_json
+puts [Song.new(title: "Hyper Music"), Song.new(title: "Screenager")].extend(SongsRepresenter).to_json

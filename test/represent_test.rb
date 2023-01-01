@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require "test_helper"
 
 class RepresentTest < MiniTest::Spec
   let(:songs) { [song, Song.new("Can't Take Them All")] }
-  let(:song) { Song.new('Days Go By') }
+  let(:song) { Song.new("Days Go By") }
 
   for_formats(
-    hash: [Representable::Hash, out = [{ 'name' => 'Days Go By' }, { 'name' => "Can't Take Them All" }], out]
+    hash: [Representable::Hash, out = [{"name" => "Days Go By"}, {"name" => "Can't Take Them All"}], out]
     # :json => [Representable::JSON, out="[{\"name\":\"Days Go By\"},{\"name\":\"Can't Take Them All\"}]", out],
     # :xml  => [Representable::XML,  out="<a><song></song><song></song></a>", out]
   ) do |format, mod, output, input|
@@ -45,12 +45,12 @@ class RepresentTest < MiniTest::Spec
       it {
         assert_equal_document(render(representer.represent(songs)), output)
       }
-      it('ficken') { _(parse(representer.represent([]), input)).must_equal songs }
+      it("ficken") { _(parse(representer.represent([]), input)).must_equal songs }
     end
   end
 
   for_formats(
-    hash: [Representable::Hash, out = { 'name' => 'Days Go By' }, out],
+    hash: [Representable::Hash, out = {"name" => "Days Go By"}, out],
     json: [Representable::JSON, out = '{"name":"Days Go By"}', out]
     # :xml  => [Representable::XML,  out="<a><song></song><song></song></a>", out]
   ) do |format, mod, output, input|

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require "test_helper"
 
 class NestedTest < MiniTest::Spec
   Album = Struct.new(:label, :owner, :amount)
@@ -8,11 +8,13 @@ class NestedTest < MiniTest::Spec
   for_formats(
     hash: [
       Representable::Hash,
-      { 'label' => { 'label' => 'Epitaph', 'owner' => 'Brett Gurewitz', 'releases' => { 'amount' => 19 } } }
+      {"label" => {"label" => "Epitaph", "owner" => "Brett Gurewitz", "releases" => {"amount" => 19}}}
     ],
     # :xml  => [Representable::XML, "<open_struct></open_struct>"],
-    yaml: [Representable::YAML,
-           "---\nlabel:\n  label: Epitaph\n  owner: Brett Gurewitz\n  releases:\n    amount: 19\n"]
+    yaml: [
+      Representable::YAML,
+      "---\nlabel:\n  label: Epitaph\n  owner: Brett Gurewitz\n  releases:\n    amount: 19\n"
+    ]
   ) do |format, mod, output, _input|
     [false, true].each do |is_decorator|
       describe "::nested with (inline representer|decorator): #{is_decorator}" do
@@ -32,25 +34,25 @@ class NestedTest < MiniTest::Spec
           # self.representation_wrap = :album if format == :xml
         end
 
-        let(:album) { Album.new('Epitaph', 'Brett Gurewitz', 19) }
+        let(:album) { Album.new("Epitaph", "Brett Gurewitz", 19) }
         let(:decorator) { representer.prepare(album) }
 
-        it 'renders nested Album-properties in separate section' do
+        it "renders nested Album-properties in separate section" do
           assert_equal_document(render(decorator), output)
 
           # do not use extend on the nested object. # FIXME: make this a proper test with two describes instead of this pseudo-meta stuff.
           _(album).wont_be_kind_of(Representable::Hash) if is_decorator == true
         end
 
-        it 'parses nested properties to Album instance' do
+        it "parses nested properties to Album instance" do
           album = parse(representer.prepare(Album.new), output)
-          _(album.label).must_equal 'Epitaph'
-          _(album.owner).must_equal 'Brett Gurewitz'
+          _(album.label).must_equal "Epitaph"
+          _(album.owner).must_equal "Brett Gurewitz"
         end
       end
     end
 
-    describe 'Decorator ::nested with extend:' do
+    describe "Decorator ::nested with extend:" do
       let(:format) { format }
 
       representer!(name: :label_rpr) do
@@ -69,23 +71,23 @@ class NestedTest < MiniTest::Spec
         self.representation_wrap = :album if format == :xml
       end
 
-      let(:album) { representer.prepare(Album.new('Epitaph', 'Brett Gurewitz', 19)) }
+      let(:album) { representer.prepare(Album.new("Epitaph", "Brett Gurewitz", 19)) }
 
       # TODO: shared example with above.
-      it 'renders nested Album-properties in separate section' do
+      it "renders nested Album-properties in separate section" do
         assert_equal_document(render(album), output)
       end
 
-      it 'parses nested properties to Album instance' do
+      it "parses nested properties to Album instance" do
         album = parse(representer.prepare(Album.new), output)
-        _(album.label).must_equal 'Epitaph'
-        _(album.owner).must_equal 'Brett Gurewitz'
+        _(album.label).must_equal "Epitaph"
+        _(album.owner).must_equal "Brett Gurewitz"
         _(album.amount).must_equal 19
       end
     end
   end
 
-  describe '::nested without block but with inherit:' do
+  describe "::nested without block but with inherit:" do
     representer!(name: :parent) do
       include Representable::Hash
 
@@ -96,13 +98,13 @@ class NestedTest < MiniTest::Spec
 
     representer!(module: Representable::Hash, inject: :parent) do
       include parent
-      nested :label, inherit: true, as: 'Label'
+      nested :label, inherit: true, as: "Label"
     end
 
-    let(:album) { representer.prepare(Album.new('Epitaph', 'Brett Gurewitz', 19)) }
+    let(:album) { representer.prepare(Album.new("Epitaph", "Brett Gurewitz", 19)) }
 
-    it 'renders nested Album-properties in separate section' do
-      _(representer.prepare(album).to_hash).must_equal({ 'Label' => { 'owner' => 'Brett Gurewitz' } })
+    it "renders nested Album-properties in separate section" do
+      _(representer.prepare(album).to_hash).must_equal({"Label" => {"owner" => "Brett Gurewitz"}})
     end
 
     # it "parses nested properties to Album instance" do
