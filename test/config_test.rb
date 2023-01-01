@@ -1,13 +1,15 @@
-require "test_helper"
+# frozen_string_literal: true
+
+require 'test_helper'
 
 class ConfigTest < MiniTest::Spec
   subject { Representable::Config.new(Representable::Definition) }
   PunkRock = Class.new
   Definition = Representable::Definition
 
-  describe "wrapping" do
-    it "returns false per default" do
-      assert_nil subject.wrap_for("Punk", nil)
+  describe 'wrapping' do
+    it 'returns false per default' do
+      assert_nil subject.wrap_for('Punk', nil)
     end
 
     # it "infers a printable class name if set to true" do
@@ -21,7 +23,7 @@ class ConfigTest < MiniTest::Spec
     # end
   end
 
-  describe "#[]" do
+  describe '#[]' do
     # does return nil for non-existent
     it { _(subject[:hello]).must_be_nil }
   end
@@ -38,35 +40,35 @@ class ConfigTest < MiniTest::Spec
   # []=(... inherit: true)
   # forwarded to Config#definitions
   # that goes to ConfigDefinitionsTest
-  describe "#add" do
-    describe "returns" do
+  describe '#add' do
+    describe 'returns' do
       it do
         # #add returns Definition.`
-        subject = Representable::Config.new(Representable::Definition).add(:title, {:me => true})
+        subject = Representable::Config.new(Representable::Definition).add(:title, { me: true })
 
         _(subject).must_be_kind_of Representable::Definition
         _(subject[:me]).must_equal true
       end
     end
 
-    before { subject.add(:title, {:me => true}) }
+    before { subject.add(:title, { me: true }) }
 
     # must be kind of Definition
     it { _(subject.size).must_equal 1 }
-    it { _(subject.get(:title).name).must_equal "title" }
+    it { _(subject.get(:title).name).must_equal 'title' }
     it { _(subject.get(:title)[:me]).must_equal true }
 
     # this is actually tested in context in inherit_test.
-    it "overrides former definition" do
-      subject.add(:title, {:peer => Module})
+    it 'overrides former definition' do
+      subject.add(:title, { peer: Module })
       _(subject.get(:title)[:me]).must_be_nil
       _(subject.get(:title)[:peer]).must_equal Module
     end
 
-    describe "inherit: true" do
+    describe 'inherit: true' do
       before do
-        subject.add(:title, {:me => true})
-        subject.add(:title, {:peer => Module, :inherit => true})
+        subject.add(:title, { me: true })
+        subject.add(:title, { peer: Module, inherit: true })
       end
 
       it { _(subject.get(:title)[:me]).must_equal true }
@@ -74,11 +76,11 @@ class ConfigTest < MiniTest::Spec
     end
   end
 
-  describe "#remove" do
+  describe '#remove' do
     subject { Representable::Config.new(Representable::Definition) }
 
     it do
-      subject.add(:title, {:me => true})
+      subject.add(:title, { me: true })
       subject.add(:genre, {})
       _(subject.get(:genre)).must_be_kind_of Representable::Definition
 
@@ -87,10 +89,10 @@ class ConfigTest < MiniTest::Spec
     end
   end
 
-  describe "#each" do
-    before { subject.add(:title, {:me => true}) }
+  describe '#each' do
+    before { subject.add(:title, { me: true }) }
 
-    it "what" do
+    it 'what' do
       definitions = []
       subject.each { |dfn| definitions << dfn }
       _(definitions.size).must_equal 1
@@ -98,7 +100,7 @@ class ConfigTest < MiniTest::Spec
     end
   end
 
-  describe "#options" do
+  describe '#options' do
     it { _(subject.options).must_equal({}) }
     it do
       subject.options[:namespacing] = true
@@ -106,7 +108,7 @@ class ConfigTest < MiniTest::Spec
     end
   end
 
-  describe "#get" do
+  describe '#get' do
     subject       { Representable::Config.new(Representable::Definition) }
 
     it do

@@ -1,19 +1,21 @@
-require "test_helper"
+# frozen_string_literal: true
+
+require 'test_helper'
 
 class ReaderWriterTest < BaseTest
   representer! do
     property :name,
-             :writer => ->(options) { options[:doc]["title"] = "#{options[:user_options][:nr]}) #{options[:input]}" },
-             :reader => ->(options) { self.name = options[:doc]["title"].split(") ").last }
+             writer: ->(options) { options[:doc]['title'] = "#{options[:user_options][:nr]}) #{options[:input]}" },
+             reader: ->(options) { self.name = options[:doc]['title'].split(') ').last }
   end
 
-  subject { OpenStruct.new(:name => "Disorder And Disarray").extend(representer) }
+  subject { OpenStruct.new(name: 'Disorder And Disarray').extend(representer) }
 
-  it "uses :writer when rendering" do
-    _(subject.to_hash(user_options: {nr: 14})).must_equal({"title" => "14) Disorder And Disarray"})
+  it 'uses :writer when rendering' do
+    _(subject.to_hash(user_options: { nr: 14 })).must_equal({ 'title' => '14) Disorder And Disarray' })
   end
 
-  it "uses :reader when parsing" do
-    _(subject.from_hash({"title" => "15) The Wars End"}).name).must_equal "The Wars End"
+  it 'uses :reader when parsing' do
+    _(subject.from_hash({ 'title' => '15) The Wars End' }).name).must_equal 'The Wars End'
   end
 end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "test_helper"
-require "representable/coercion"
+require 'test_helper'
+require 'representable/coercion'
 
 class CoercionTest < MiniTest::Spec
   representer! do
@@ -21,8 +21,8 @@ class CoercionTest < MiniTest::Spec
 
   let(:album) do
     OpenStruct.new(
-      title: "Dire Straits", length: 41.34,
-      band: OpenStruct.new(founded: "1977"),
+      title: 'Dire Straits', length: 41.34,
+      band: OpenStruct.new(founded: '1977'),
       songs: [OpenStruct.new(ok: 1), OpenStruct.new(ok: 0)]
     )
   end
@@ -30,10 +30,10 @@ class CoercionTest < MiniTest::Spec
   it do
     _(album.extend(representer).to_hash).must_equal(
       {
-        "title"  => "Dire Straits",
-        "length" => 41.34,
-        "band"   => {"founded" => 1977},
-        "songs"  => [{"ok" => true}, {"ok" => false}]
+        'title' => 'Dire Straits',
+        'length' => 41.34,
+        'band' => { 'founded' => 1977 },
+        'songs' => [{ 'ok' => true }, { 'ok' => false }]
       }
     )
   end
@@ -43,10 +43,10 @@ class CoercionTest < MiniTest::Spec
     album.extend(representer)
     album.from_hash(
       {
-        "title"  => "Dire Straits",
-        "length" => "41.34",
-        "band"   => {"founded" => "1977"},
-        "songs"  => [{"ok" => 1}, {"ok" => 0}]
+        'title' => 'Dire Straits',
+        'length' => '41.34',
+        'band' => { 'founded' => '1977' },
+        'songs' => [{ 'ok' => 1 }, { 'ok' => 0 }]
       }
     )
 
@@ -56,18 +56,18 @@ class CoercionTest < MiniTest::Spec
     _(album.songs[0].ok).must_equal true
   }
 
-  describe "with user :parse_filter and :render_filter" do
+  describe 'with user :parse_filter and :render_filter' do
     representer! do
       include Representable::Coercion
 
-      property :length, type:          Representable::Coercion::Types::Params::Float,
-                        parse_filter:  ->(input, _options) { "#{input}.1" }, # happens BEFORE coercer.
+      property :length, type: Representable::Coercion::Types::Params::Float,
+                        parse_filter: ->(input, _options) { "#{input}.1" }, # happens BEFORE coercer.
                         render_filter: ->(fragment, *) { "#{fragment}.1" }
     end
 
     # user's :parse_filter(s) are run before coercion.
-    it { _(OpenStruct.new.extend(representer).from_hash("length" => "1").length).must_equal 1.1 }
+    it { _(OpenStruct.new.extend(representer).from_hash('length' => '1').length).must_equal 1.1 }
     # user's :render_filter(s) are run before coercion.
-    it { _(OpenStruct.new(length: 1).extend(representer).to_hash).must_equal({"length" => 1.1}) }
+    it { _(OpenStruct.new(length: 1).extend(representer).to_hash).must_equal({ 'length' => 1.1 }) }
   end
 end

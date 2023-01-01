@@ -1,4 +1,6 @@
-require "test_helper"
+# frozen_string_literal: true
+
+require 'test_helper'
 
 class UserOptionsTest < Minitest::Spec
   Song = Struct.new(:title)
@@ -7,18 +9,20 @@ class UserOptionsTest < Minitest::Spec
     property :title, if: ->(options) { options[:user_options][:visible] }
   end
 
-  it { _(Song.new("Run With It").extend(representer).to_hash).must_equal({}) }
+  it { _(Song.new('Run With It').extend(representer).to_hash).must_equal({}) }
   it {
-    _(Song.new("Run With It").extend(representer).to_hash(user_options: {visible: true})).must_equal({"title"=>"Run With It"})
+    _(Song.new('Run With It').extend(representer).to_hash(user_options: { visible: true })).must_equal({ 'title' => 'Run With It' })
   }
-  it { _(Song.new("Run With It").extend(representer).from_hash("title"=>"Business Conduct").title).must_equal "Run With It" }
+  it {
+    _(Song.new('Run With It').extend(representer).from_hash('title' => 'Business Conduct').title).must_equal 'Run With It'
+  }
   it {
     _(
-      Song.new("Run With It").extend(representer).from_hash(
-        {"title"=>"Business Conduct"},
-        user_options: {visible: true}
+      Song.new('Run With It').extend(representer).from_hash(
+        { 'title' => 'Business Conduct' },
+        user_options: { visible: true }
       ).title
-    ).must_equal "Business Conduct"
+    ).must_equal 'Business Conduct'
   }
 end
 # Representable.deprecations=false

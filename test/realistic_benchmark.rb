@@ -1,5 +1,7 @@
-require "test_helper"
-require "benchmark"
+# frozen_string_literal: true
+
+require 'test_helper'
+require 'benchmark'
 
 SONG_PROPERTIES = 50.times.collect do |i|
   "song_property_#{i}"
@@ -43,15 +45,15 @@ times = []
   album = Album.new(100.times.collect { random_song })
 
   times << Benchmark.measure do
-    puts "================ next!"
+    puts '================ next!'
     AlbumRepresenter.new(album).to_json
   end
 end
 
-puts times.join("")
+puts times.join('')
 
 album = Album.new(100.times.collect { random_song })
-require "ruby-prof"
+require 'ruby-prof'
 RubyProf.start
 AlbumRepresenter.new(album).to_hash
 res = RubyProf.stop

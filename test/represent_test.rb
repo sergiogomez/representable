@@ -1,11 +1,13 @@
-require "test_helper"
+# frozen_string_literal: true
+
+require 'test_helper'
 
 class RepresentTest < MiniTest::Spec
   let(:songs) { [song, Song.new("Can't Take Them All")] }
-  let(:song) { Song.new("Days Go By") }
+  let(:song) { Song.new('Days Go By') }
 
   for_formats(
-    :hash => [Representable::Hash, out = [{"name" => "Days Go By"}, {"name"=>"Can't Take Them All"}], out]
+    hash: [Representable::Hash, out = [{ 'name' => 'Days Go By' }, { 'name' => "Can't Take Them All" }], out]
     # :json => [Representable::JSON, out="[{\"name\":\"Days Go By\"},{\"name\":\"Can't Take Them All\"}]", out],
     # :xml  => [Representable::XML,  out="<a><song></song><song></song></a>", out]
   ) do |format, mod, output, input|
@@ -18,11 +20,13 @@ class RepresentTest < MiniTest::Spec
           include mod
           property :name
 
-          collection_representer :class => Song # TODOOOOOOOOOOOO: test without Song and fix THIS FUCKINGNoMethodError: undefined method `name=' for {"name"=>"Days Go By"}:Hash ERROR!!!!!!!!!!!!!!!
+          collection_representer class: Song # TODOOOOOOOOOOOO: test without Song and fix THIS FUCKINGNoMethodError: undefined method `name=' for {"name"=>"Days Go By"}:Hash ERROR!!!!!!!!!!!!!!!
         end
       end
 
-      it { render(representer.represent(songs)).must_equal_document output }
+      it {
+        assert_equal_document(render(representer.represent(songs)), output)
+      }
       it { _(parse(representer.represent([]), input)).must_equal songs }
     end
 
@@ -34,18 +38,20 @@ class RepresentTest < MiniTest::Spec
           include mod
           property :name
 
-          collection_representer :class => Song
+          collection_representer class: Song
         end
       end
 
-      it { render(representer.represent(songs)).must_equal_document output }
-      it("ficken") { _(parse(representer.represent([]), input)).must_equal songs }
+      it {
+        assert_equal_document(render(representer.represent(songs)), output)
+      }
+      it('ficken') { _(parse(representer.represent([]), input)).must_equal songs }
     end
   end
 
   for_formats(
-    :hash => [Representable::Hash, out = {"name" => "Days Go By"}, out],
-    :json => [Representable::JSON, out = "{\"name\":\"Days Go By\"}", out]
+    hash: [Representable::Hash, out = { 'name' => 'Days Go By' }, out],
+    json: [Representable::JSON, out = '{"name":"Days Go By"}', out]
     # :xml  => [Representable::XML,  out="<a><song></song><song></song></a>", out]
   ) do |format, mod, output, input|
     # Representer.represents detects singular.
@@ -57,11 +63,11 @@ class RepresentTest < MiniTest::Spec
           include mod
           property :name
 
-          collection_representer :class => Song
+          collection_representer class: Song
         end
       end
 
-      it { render(representer.represent(song)).must_equal_document output }
+      it { assert_equal_document(render(representer.represent(song)), output) }
       it { _(parse(representer.represent(Song.new), input)).must_equal song }
     end
 
@@ -73,11 +79,11 @@ class RepresentTest < MiniTest::Spec
           include mod
           property :name
 
-          collection_representer :class => Song
+          collection_representer class: Song
         end
       end
 
-      it { render(representer.represent(song)).must_equal_document output }
+      it { assert_equal_document(render(representer.represent(song)), output) }
       it { _(parse(representer.represent(Song.new), input)).must_equal song }
     end
   end

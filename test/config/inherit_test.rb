@@ -1,4 +1,6 @@
-require "test_helper"
+# frozen_string_literal: true
+
+require 'test_helper'
 
 # tests defining representers in modules, decorators and classes and the inheritance when combined.
 
@@ -7,7 +9,7 @@ class ConfigInheritTest < MiniTest::Spec
     child_def  = child.representable_attrs.get(property)
     parent_def = parent.representable_attrs.get(property)
 
-    child_def.merge!(:alias => property)
+    child_def.merge!(alias: property)
 
     _(child_def[:alias]).wont_equal parent_def[:alias]
     _(child_def.object_id).wont_equal parent_def.object_id
@@ -38,7 +40,7 @@ class ConfigInheritTest < MiniTest::Spec
   end
 
   it { _(InheritingDecorator.definitions.keys).must_equal %w[title artist location] }
-  it { assert_cloned(InheritingDecorator, Decorator, "title") }
+  it { assert_cloned(InheritingDecorator, Decorator, 'title') }
   it do
     _(InheritingDecorator.representable_attrs.get(:artist).representer_module.object_id).wont_equal Decorator.representable_attrs.get(:artist).representer_module.object_id
   end
@@ -59,7 +61,7 @@ class ConfigInheritTest < MiniTest::Spec
     property :title
   end
 
-  it { _(Module.definitions.keys).must_equal ["title"] }
+  it { _(Module.definitions.keys).must_equal ['title'] }
 
   # in module including module
   module SubModule
@@ -109,7 +111,7 @@ class ConfigInheritTest < MiniTest::Spec
     property :title
   end
 
-  it { _(RepresenterClass.definitions.keys).must_equal ["title"] }
+  it { _(RepresenterClass.definitions.keys).must_equal ['title'] }
 
   # in inheriting class
   class InheritingClass < RepresenterClass

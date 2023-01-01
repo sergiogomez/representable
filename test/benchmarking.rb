@@ -1,5 +1,7 @@
-require "test_helper"
-require "benchmark"
+# frozen_string_literal: true
+
+require 'test_helper'
+require 'benchmark'
 
 SONG_PROPERTIES = 1000.times.collect do |i|
   "property_#{i}"
@@ -35,12 +37,12 @@ times = []
   album = OpenStruct.new(songs: 100.times.collect { random_song })
 
   times << Benchmark.measure do
-    puts "================ next!"
+    puts '================ next!'
     album.extend(AlbumRepresenter).to_json
   end
 end
 
-puts times.join("")
+puts times.join('')
 
 # 100 songs, 100 attrs
 #  0.050000   0.000000   0.050000 (  0.093157)

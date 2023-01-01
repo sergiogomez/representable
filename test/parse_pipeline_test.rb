@@ -1,33 +1,35 @@
-require "test_helper"
+# frozen_string_literal: true
+
+require 'test_helper'
 
 class ParsePipelineTest < MiniTest::Spec
   Album  = Struct.new(:id, :artist, :songs)
   Artist = Struct.new(:email)
   Song   = Struct.new(:title)
 
-  describe "transforming nil to [] when parsing" do
+  describe 'transforming nil to [] when parsing' do
     representer!(decorator: true) do
       collection :songs,
-                 parse_pipeline: ->(*) {
+                 parse_pipeline: lambda { |*|
                    Representable::Pipeline.insert(
-                     parse_functions,                                # original function list from Binding#parse_functions.
+                     parse_functions, # original function list from Binding#parse_functions.
                      ->(input, _options) { input.nil? ? [] : input }, # your new function (can be any callable object)..
                      replace: Representable::OverwriteOnNil # ..that replaces the original function.
                    )
                  },
-                 class:          Song do
+                 class: Song do
         property :title
       end
     end
 
     it do
-      representer.new(album = Album.new).from_hash("songs"=>nil)
+      representer.new(album = Album.new).from_hash('songs' => nil)
       _(album.songs).must_equal []
     end
 
     it do
-      representer.new(album = Album.new).from_hash("songs"=>[{"title" => "Business Conduct"}])
-      _(album.songs).must_equal [Song.new("Business Conduct")]
+      representer.new(album = Album.new).from_hash('songs' => [{ 'title' => 'Business Conduct' }])
+      _(album.songs).must_equal [Song.new('Business Conduct')]
     end
   end
 
@@ -39,7 +41,7 @@ class ParsePipelineTest < MiniTest::Spec
     #   property :email
     # end
     # DISCUSS: rename to populator_pipeline ?
-    collection :songs, parse_pipeline: ->(*) {
+    collection :songs, parse_pipeline: lambda { |*|
                                          [Collect[Instance, Prepare, Deserialize], Setter]
                                        }, instance: :instance!, exec_context: :decorator, pass_options: true do
       property :title
@@ -55,14 +57,14 @@ class ParsePipelineTest < MiniTest::Spec
   end
 
   it do
-    skip "TODO: implement :parse_pipeline and :render_pipeline, and before/after/replace semantics"
+    skip 'TODO: implement :parse_pipeline and :render_pipeline, and before/after/replace semantics'
     album = Album.new
     Representer.new(album).from_hash(
       {
-        "artist" => {"email"=>"yo"},
-        "songs"  => [{"title"=>"Affliction"}, {"title"=>"Dream Beater"}]
+        'artist' => { 'email' => 'yo' },
+        'songs' => [{ 'title' => 'Affliction' }, { 'title' => 'Dream Beater' }]
       }
     )
-    _(album.songs).must_equal([Song.new("Affliction"), Song.new("Dream Beater")])
+    _(album.songs).must_equal([Song.new('Affliction'), Song.new('Dream Beater')])
   end
 end

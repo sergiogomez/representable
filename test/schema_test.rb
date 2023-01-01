@@ -1,4 +1,6 @@
-require "test_helper"
+# frozen_string_literal: true
+
+require 'test_helper'
 
 # Include Inherit Module And Decorator Test
 class SchemaTest < MiniTest::Spec
@@ -13,8 +15,7 @@ class SchemaTest < MiniTest::Spec
     end
 
     module Link
-      def link
-      end
+      def link; end
     end
   end
 
@@ -33,7 +34,7 @@ class SchemaTest < MiniTest::Spec
       end
     end
 
-    property :album, :extend => -> { fail "don't manifest me!" } # this is not an inline decorator, don't manifest it.
+    property :album, extend: -> { raise "don't manifest me!" } # this is not an inline decorator, don't manifest it.
 
     include Genre # Schema::Included::included is called!
   end
@@ -54,15 +55,17 @@ class SchemaTest < MiniTest::Spec
     end
   end
 
-  describe "3-level deep with features" do
-    let(:label) { OpenStruct.new(:name => "Epitaph", :location => OpenStruct.new(:city => "Sanfran", :name => "DON'T SHOW ME!")) }
+  describe '3-level deep with features' do
+    let(:label) do
+      OpenStruct.new(name: 'Epitaph', location: OpenStruct.new(city: 'Sanfran', name: "DON'T SHOW ME!"))
+    end
 
     # Module does correctly include features in inlines.
     it {
       _(band.extend(Module).to_hash).must_equal(
         {
-          "label" => {"name" => "Epitaph", "location" => {"city"=>"Sanfran"}},
-          "genre" => "Punkrock"
+          'label' => { 'name' => 'Epitaph', 'location' => { 'city' => 'Sanfran' } },
+          'genre' => 'Punkrock'
         }
       )
     }
@@ -71,8 +74,8 @@ class SchemaTest < MiniTest::Spec
     it {
       _(Decorator.new(band).to_hash).must_equal(
         {
-          "label" => {"name" => "Epitaph", "location" => {"city"=>"Sanfran"}},
-          "genre" => "Punkrock"
+          'label' => { 'name' => 'Epitaph', 'location' => { 'city' => 'Sanfran' } },
+          'genre' => 'Punkrock'
         }
       )
     }
@@ -88,19 +91,19 @@ class SchemaTest < MiniTest::Spec
 
   let(:label) do
     OpenStruct.new(
-      :name => "Fat Wreck", :city => "San Francisco", :employees => [OpenStruct.new(:name => "Mike")],
-      :location => OpenStruct.new(:city => "Sanfran")
+      name: 'Fat Wreck', city: 'San Francisco', employees: [OpenStruct.new(name: 'Mike')],
+      location: OpenStruct.new(city: 'Sanfran')
     )
   end
-  let(:band) { OpenStruct.new(:genre => "Punkrock", :label => label) }
+  let(:band) { OpenStruct.new(genre: 'Punkrock', label: label) }
 
   # it { FlatlinersDecorator.new( OpenStruct.new(label: OpenStruct.new) ).
   #   to_hash.must_equal({}) }
   it do
     _(Decorator.new(band).to_hash).must_equal(
       {
-        "genre" => "Punkrock",
-        "label" => {"name" => "Fat Wreck", "location" => {"city"=>"Sanfran"}}
+        'genre' => 'Punkrock',
+        'label' => { 'name' => 'Fat Wreck', 'location' => { 'city' => 'Sanfran' } }
       }
     )
   end
@@ -113,7 +116,7 @@ class SchemaTest < MiniTest::Spec
     property :label, inherit: true do # decorator.rb:27:in `initialize': superclass must be a Class (Module given)
       property :city
 
-      property :location, :inherit => true do
+      property :location, inherit: true do
         property :city
       end
     end
@@ -122,10 +125,10 @@ class SchemaTest < MiniTest::Spec
   it do
     _(InheritDecorator.new(band).to_hash).must_equal(
       {
-        "genre" => "Punkrock",
-        "label" => {
-          "name" => "Fat Wreck", "city" => "San Francisco",
-"location" => {"city"=>"Sanfran"}
+        'genre' => 'Punkrock',
+        'label' => {
+          'name' => 'Fat Wreck', 'city' => 'San Francisco',
+          'location' => { 'city' => 'Sanfran' }
         }
       }
     )
@@ -142,10 +145,10 @@ class SchemaTest < MiniTest::Spec
   it do
     _(InheritFromDecorator.new(band).to_hash).must_equal(
       {
-        "genre" => "Punkrock",
-        "label" => {
-          "name" => "Fat Wreck", "city" => "San Francisco", "employees" => [{"name"=>"Mike"}],
-      "location" => {"city"=>"Sanfran"}
+        'genre' => 'Punkrock',
+        'label' => {
+          'name' => 'Fat Wreck', 'city' => 'San Francisco', 'employees' => [{ 'name' => 'Mike' }],
+          'location' => { 'city' => 'Sanfran' }
         }
       }
     )

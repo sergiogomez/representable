@@ -1,4 +1,6 @@
-require "test_helper"
+# frozen_string_literal: true
+
+require 'test_helper'
 
 class FilterPipelineTest < MiniTest::Spec
   let(:block1) { ->(input, _options) { "1: #{input}" } }
@@ -6,7 +8,7 @@ class FilterPipelineTest < MiniTest::Spec
 
   subject { Representable::Pipeline[block1, block2] }
 
-  it { _(subject.call("Horowitz", {})).must_equal "2: 1: Horowitz" }
+  it { _(subject.call('Horowitz', {})).must_equal '2: 1: Horowitz' }
 end
 
 class FilterTest < MiniTest::Spec
@@ -14,45 +16,45 @@ class FilterTest < MiniTest::Spec
     property :title
 
     property :track,
-             :parse_filter  => ->(input, options) { "#{input.downcase},#{options[:doc]}" },
-             :render_filter => ->(val, options) { "#{val.upcase},#{options[:doc]},#{options[:options][:user_options]}" }
+             parse_filter: ->(input, options) { "#{input.downcase},#{options[:doc]}" },
+             render_filter: ->(val, options) { "#{val.upcase},#{options[:doc]},#{options[:options][:user_options]}" }
   end
 
   # gets doc and options.
   it {
-    song = OpenStruct.new.extend(representer).from_hash("title" => "VULCAN EARS", "track" => "Nine")
-    _(song.title).must_equal "VULCAN EARS"
-    _(song.track).must_equal "nine,{\"title\"=>\"VULCAN EARS\", \"track\"=>\"Nine\"}"
+    song = OpenStruct.new.extend(representer).from_hash('title' => 'VULCAN EARS', 'track' => 'Nine')
+    _(song.title).must_equal 'VULCAN EARS'
+    _(song.track).must_equal 'nine,{"title"=>"VULCAN EARS", "track"=>"Nine"}'
   }
 
   it {
     _(
       OpenStruct.new(
-        "title" => "vulcan ears",
-        "track" => "Nine"
+        'title' => 'vulcan ears',
+        'track' => 'Nine'
       ).extend(representer).to_hash
     ).must_equal({
-                   "title" => "vulcan ears",
-                   "track" => "NINE,{\"title\"=>\"vulcan ears\"},{}"
+                   'title' => 'vulcan ears',
+                   'track' => 'NINE,{"title"=>"vulcan ears"},{}'
                  })
   }
 
-  describe "#parse_filter" do
+  describe '#parse_filter' do
     representer! do
       property :track,
-               :parse_filter  => [
+               parse_filter: [
                  ->(input, _options) { "#{input}-1" },
                  ->(input, _options) { "#{input}-2" }
                ],
-               :render_filter => [
+               render_filter: [
                  ->(val, _options) { "#{val}-1" },
                  ->(val, _options) { "#{val}-2" }
                ]
     end
 
     # order matters.
-    it { _(OpenStruct.new.extend(representer).from_hash("track" => "Nine").track).must_equal "Nine-1-2" }
-    it { _(OpenStruct.new("track" => "Nine").extend(representer).to_hash).must_equal({"track"=>"Nine-1-2"}) }
+    it { _(OpenStruct.new.extend(representer).from_hash('track' => 'Nine').track).must_equal 'Nine-1-2' }
+    it { _(OpenStruct.new('track' => 'Nine').extend(representer).to_hash).must_equal({ 'track' => 'Nine-1-2' }) }
   end
 end
 
