@@ -1,11 +1,14 @@
-require "pry-byebug"
-require "representable"
+begin
+  require 'pry-byebug'
+rescue LoadError
+end
+require 'representable'
 
-require "minitest/autorun"
-require "test_xml/mini_test"
+require 'minitest/autorun'
+require 'test_xml/mini_test'
 
-require "representable/debug"
-require "minitest/assertions"
+require 'representable/debug'
+require 'minitest/assertions'
 
 module MiniTest::Assertions
   def assert_equal_xml(text, subject)
@@ -138,9 +141,14 @@ end
 
 class BaseTest < MiniTest::Spec
   let(:new_album)  { OpenStruct.new.extend(representer) }
-  let(:album)      { OpenStruct.new(:songs => ["Fuck Armageddon"]).extend(representer) }
-  let(:song) { OpenStruct.new(:title => "Resist Stance") }
-  let(:song_representer) { Module.new { include Representable::Hash; property :title } }
+  let(:album)      { OpenStruct.new(songs: ['Fuck Armageddon']).extend(representer) }
+  let(:song) { OpenStruct.new(title: 'Resist Stance') }
+  let(:song_representer) do
+    Module.new do
+      include Representable::Hash
+      property :title
+    end
+  end
 end
 
 Band = Struct.new(:id, :name) do
