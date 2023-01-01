@@ -58,7 +58,7 @@ class AsXmlTest < MiniTest::Spec
   end
 
   it do
-    assert_equal "<album>
+    assert_xml_equal "<album>
   <combo>
     <name>Offspring</name>
   </combo>

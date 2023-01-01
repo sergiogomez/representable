@@ -72,21 +72,6 @@ module MiniTest
       object.send("from_#{format}", input, *args)
     end
 
-    class AssertableDocument
-      attr_reader :document
-
-      def initialize(document, format)
-        @document = document
-        @format = format
-      end
-
-      def must_equal_document(*args)
-        return document.must_equal_xml(*args) if @format == :xml
-
-        document.must_equal(*args)
-      end
-    end
-
     def self.representer!(options = {}, &block)
       fmt = options # we need that so the 2nd call to ::let(within a ::describe) remembers the right format.
 

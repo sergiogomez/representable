@@ -136,23 +136,12 @@ class Namespace2XMLTest < Minitest::Spec
   # :map-class end
 
   it 'renders' do
+
     assert_equal(
-      Library.new(Model::Library.new(book)).to_xml,
       # :map-xml
-      %(<lib:library xmlns:lib="http://eric.van-der-vlist.com/ns/library" xmlns:hr="http://eric.van-der-vlist.com/ns/person">
-  <lib:book id="1">
-    <lib:isbn>666</lib:isbn>
-    <hr:author>
-      <hr:name>Fowler</hr:name>
-    </hr:author>
-    <lib:character>
-      <lib:qualification>typed</lib:qualification>
-      <hr:name>Frau Java</hr:name>
-      <hr:born>1991</hr:born>
-    </lib:character>
-  </lib:book>
-</lib:library>)
+      "<lib:library xmlns:lib=\"http://eric.van-der-vlist.com/ns/library\" xmlns:hr=\"http://eric.van-der-vlist.com/ns/person\">\n  <lib:book id=\"1\">\n    <lib:isbn>666</lib:isbn>\n    <hr:author>\n      <hr:name>Fowler</hr:name>\n    </hr:author>\n    <lib:character>\n      <lib:qualification>typed</lib:qualification>\n      <hr:name>Frau Java</hr:name>\n      <hr:born>1991</hr:born>\n    </lib:character>\n  </lib:book>\n</lib:library>",
       # :map-xml end
+      Library.new(Model::Library.new(book)).to_xml
     )
   end
 
@@ -180,10 +169,13 @@ class Namespace2XMLTest < Minitest::Spec
       # :parse-call end
     )
 
-    _(lib.book.inspect).must_equal %(#<struct Namespace2XMLTest::Model::Book id=\"1\", isbn=\"666\", author=#<struct Namespace2XMLTest::Model::Character name=\"Fowler\", born=nil, qualification=nil>, character=[#<struct Namespace2XMLTest::Model::Character name=\"Frau Java\", born=\"1991\", qualification=\"typed\">]>)
+    #take last line only
+    xml = lib.book.inspect
+    expected = "#<struct Namespace2XMLTest::Model::Book id=\"1\", isbn=\"666\", author=#<struct Namespace2XMLTest::Model::Character name=\"Fowler\", born=nil, qualification=nil>, character=[#<struct Namespace2XMLTest::Model::Character name=\"Frau Java\", born=\"1991\", qualification=\"typed\">]>"
 
+    assert_equal(expected, xml.to_s)
     # :parse-res
-    lib.book.character[0].name #=> "Frau Java"
+    assert_equal "Frau Java", lib.book.character[0].name
     # :parse-res end
   end
 end

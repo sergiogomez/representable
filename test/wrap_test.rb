@@ -149,7 +149,7 @@ class XMLDisableWrapTest < MiniTest::Spec
 
   # band has wrap turned of per property definition, however, label still has wrap.
   it 'rendersxx' do
-    assert_equal("<albums>
+    assert_xml_equal("<albums>
   <po>
     <po>
       <name>Social Distortion</name>

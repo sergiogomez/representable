@@ -10,3 +10,7 @@ Gemfile.lock
 *.swp
 *.swo
 bin
+# Jetbrains IDEs
+.idea
+*.iml
+/out

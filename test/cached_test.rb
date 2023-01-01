@@ -22,6 +22,12 @@ class Profiler
       printer = JRuby::Profiler::FlatProfilePrinter.new(profile_result)
       printer.printProfile(print_stream)
       output_stream.toString
+    when 'truffleruby'
+      require 'truffleruby-tool'
+
+      output = StringIO.new
+      TruffleRubyTool.profile(&block)
+      output.string
     end
   end
 end
