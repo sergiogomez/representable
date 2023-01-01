@@ -11,27 +11,27 @@ require "test_helper"
 #     <hr:born>1922-11-26</hr:born>
 #     <hr:dead>2000-02-12</hr:dead>
 #    </hr:author>
-#    <lib:character id="PP">
+#    <hr:character id="PP">
 #     <hr:name>Peppermint Patty</hr:name>
 #     <hr:born>1966-08-22</hr:born>
-#     <lib:qualification>bold, brash and tomboyish</lib:qualification>
-#     </lib:character>
-#    <lib:character id="Snoopy">
+#     <hr:qualification>bold, brash and tomboyish</hr:qualification>
+#     </hr:character>
+#    <hr:character id="Snoopy">
 #     <hr:name>Snoopy</hr:name>
 #     <hr:born>1950-10-04</hr:born>
-#     <lib:qualification>extroverted beagle</lib:qualification>
-#    </lib:character>
-#    <lib:character id="Schroeder">
+#     <hr:qualification>extroverted beagle</hr:qualification>
+#    </hr:character>
+#    <hr:character id="Schroeder">
 #     <hr:name>Schroeder</hr:name>
 #     <hr:born>1951-05-30</hr:born>
-#     <lib:qualification>brought classical music to the Peanuts strip
-#                   </lib:qualification>
-#    </lib:character>
-#    <lib:character id="Lucy">
+#     <hr:qualification>brought classical music to the Peanuts strip
+#                   </hr:qualification>
+#    </hr:character>
+#    <hr:character id="Lucy">
 #     <hr:name>Lucy</hr:name>
 #     <hr:born>1952-03-03</hr:born>
-#     <lib:qualification>bossy, crabby and selfish</lib:qualification>
-#    </lib:character>
+#     <hr:qualification>bossy, crabby and selfish</hr:qualification>
+#    </hr:character>
 #   </lib:book>
 #  </lib:library>
 
@@ -124,12 +124,12 @@ class Namespace2XMLTest < Minitest::Spec
       end
 
       collection :character, class: Model::Character do
-        namespace "http://eric.van-der-vlist.com/ns/library"
+        namespace "http://eric.van-der-vlist.com/ns/person"
 
         property :qualification
 
-        property :name, namespace: "http://eric.van-der-vlist.com/ns/person"
-        property :born, namespace: "http://eric.van-der-vlist.com/ns/person"
+        property :name
+        property :born
       end
     end
   end
@@ -138,7 +138,7 @@ class Namespace2XMLTest < Minitest::Spec
   it "renders" do
     assert_equal(
       # :map-xml
-      "<lib:library xmlns:lib=\"http://eric.van-der-vlist.com/ns/library\" xmlns:hr=\"http://eric.van-der-vlist.com/ns/person\">\n  <lib:book id=\"1\">\n    <lib:isbn>666</lib:isbn>\n    <hr:author>\n      <hr:name>Fowler</hr:name>\n    </hr:author>\n    <lib:character>\n      <lib:qualification>typed</lib:qualification>\n      <hr:name>Frau Java</hr:name>\n      <hr:born>1991</hr:born>\n    </lib:character>\n  </lib:book>\n</lib:library>",
+      "<lib:library xmlns:lib=\"http://eric.van-der-vlist.com/ns/library\" xmlns:hr=\"http://eric.van-der-vlist.com/ns/person\">\n  <lib:book id=\"1\">\n    <lib:isbn>666</lib:isbn>\n    <hr:author>\n      <hr:name>Fowler</hr:name>\n    </hr:author>\n    <hr:character>\n      <hr:qualification>typed</hr:qualification>\n      <hr:name>Frau Java</hr:name>\n      <hr:born>1991</hr:born>\n    </hr:character>\n  </lib:book>\n</lib:library>",
       # :map-xml end
       Library.new(Model::Library.new(book)).to_xml
     )
@@ -156,13 +156,13 @@ class Namespace2XMLTest < Minitest::Spec
     <hr:author>
       <hr:name>Fowler</hr:name>
     </hr:author>
-    <lib:character>
-      <lib:qualification>typed</lib:qualification>
+    <hr:character>
+      <hr:qualification>typed</hr:qualification>
       <hr:name>Frau Java</hr:name>
       <bogus:name>Mr. Ruby</hr:name>
       <name>Dr. Elixir</hr:name>
       <hr:born>1991</hr:born>
-    </lib:character>
+    </hr:character>
   </lib:book>
 </lib:library>}
       # :parse-call end
@@ -171,8 +171,8 @@ class Namespace2XMLTest < Minitest::Spec
     # take last line only
     xml = lib.book.inspect
     expected = "#<struct Namespace2XMLTest::Model::Book id=\"1\", isbn=\"666\", author=#<struct Namespace2XMLTest::Model::Character name=\"Fowler\", born=nil, qualification=nil>, character=[#<struct Namespace2XMLTest::Model::Character name=\"Frau Java\", born=\"1991\", qualification=\"typed\">]>"
-
-    assert_equal(expected, xml.to_s)
+    # In Jruby, the encoding is different, so we need to force it to be the same.
+    assert_equal(expected, xml.encode(expected.encoding))
     # :parse-res
     assert_equal "Frau Java", lib.book.character[0].name
     # :parse-res end
