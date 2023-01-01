@@ -1,15 +1,15 @@
-require 'pry-byebug'
-require 'representable'
+require "pry-byebug"
+require "representable"
 
-require 'minitest/autorun'
-require 'test_xml/mini_test'
+require "minitest/autorun"
+require "test_xml/mini_test"
 
 require "representable/debug"
-require 'minitest/assertions'
+require "minitest/assertions"
 
 module MiniTest::Assertions
   def assert_equal_xml(text, subject)
-    assert_equal (text.gsub("\n", "").gsub(/(\s\s+)/, "")), subject.gsub("\n", "").gsub(/(\s\s+)/, "")
+    assert_equal text.gsub("\n", "").gsub(/(\s\s+)/, ""), subject.gsub("\n", "").gsub(/(\s\s+)/, "")
   end
 end
 String.infect_an_assertion :assert_equal_xml, :must_xml
@@ -17,7 +17,8 @@ String.infect_an_assertion :assert_equal_xml, :must_xml
 # TODO: delete all that in 4.0:
 class Album
   attr_accessor :songs, :best_song
-  def initialize(songs=nil, best_song=nil)
+
+  def initialize(songs = nil, best_song = nil)
     @songs      = songs
     @best_song  = best_song
   end
@@ -29,7 +30,8 @@ end
 
 class Song
   attr_accessor :name, :track # never change this, track rendered with Rails#to_json.
-  def initialize(name=nil, track=nil)
+
+  def initialize(name = nil, track = nil)
     @name   = name
     @track  = track
   end
@@ -47,7 +49,7 @@ end
 
 module AssertJson
   module Assertions
-    def assert_json(expected, actual, msg=nil)
+    def assert_json(expected, actual, msg = nil)
       msg = message(msg, "") { diff expected, actual }
       assert_equal(expected.split("").sort, actual.split("").sort, msg)
     end
@@ -77,16 +79,18 @@ MiniTest::Spec.class_eval do
     attr_reader :document
 
     def initialize(document, format)
-      @document, @format = document, format
+      @document = document
+      @format = format
     end
 
     def must_equal_document(*args)
       return document.must_equal_xml(*args) if @format == :xml
+
       document.must_equal(*args)
     end
   end
 
-  def self.representer!(options={}, &block)
+  def self.representer!(options = {}, &block)
     fmt = options # we need that so the 2nd call to ::let(within a ::describe) remembers the right format.
 
     name   = options[:name]   || :representer
@@ -119,7 +123,7 @@ MiniTest::Spec.class_eval do
   end
 
   module TestMethods
-    def representer_for(modules=[Representable::Hash], &block)
+    def representer_for(modules = [Representable::Hash], &block)
       Module.new do
         extend TestMethods
         include(*modules)
@@ -127,7 +131,7 @@ MiniTest::Spec.class_eval do
       end
     end
 
-    alias_method :representer!, :representer_for
+    alias representer! representer_for
   end
   include TestMethods
 end
@@ -136,8 +140,7 @@ class BaseTest < MiniTest::Spec
   let(:new_album)  { OpenStruct.new.extend(representer) }
   let(:album)      { OpenStruct.new(:songs => ["Fuck Armageddon"]).extend(representer) }
   let(:song) { OpenStruct.new(:title => "Resist Stance") }
-  let(:song_representer) { Module.new do include Representable::Hash; property :title end  }
-
+  let(:song_representer) { Module.new { include Representable::Hash; property :title } }
 end
 
 Band = Struct.new(:id, :name) do

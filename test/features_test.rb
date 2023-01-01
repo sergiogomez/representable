@@ -1,14 +1,15 @@
-require 'test_helper'
+require "test_helper"
 
 class FeaturesTest < MiniTest::Spec
   module Title
     def title; "Is It A Lie"; end
   end
+
   module Length
     def length; "2:31"; end
   end
 
-  definition = lambda {
+  definition = -> {
     feature Title
     feature Length
 
@@ -27,16 +28,29 @@ class FeaturesTest < MiniTest::Spec
       instance_exec(&definition)
     end
 
-    it { _(song.extend(representer).to_hash).must_equal({"title"=>"Is It A Lie", "length"=>"2:31", "details"=>{"title"=>"Is It A Lie"}}) }
+    it {
+      _(song.extend(representer).to_hash).must_equal(
+        {
+          "title" => "Is It A Lie", "length" => "2:31",
+         "details" => {"title"=>"Is It A Lie"}
+        }
+      )
+    }
   end
-
 
   describe "Decorator" do
     representer!(:decorator => true) do
       instance_exec(&definition)
     end
 
-    it { _(representer.new(song).to_hash).must_equal({"title"=>"Is It A Lie", "length"=>"2:31", "details"=>{"title"=>"Is It A Lie"}}) }
+    it {
+      _(representer.new(song).to_hash).must_equal(
+        {
+          "title" => "Is It A Lie", "length" => "2:31",
+         "details" => {"title"=>"Is It A Lie"}
+        }
+      )
+    }
   end
 end
 
@@ -49,7 +63,7 @@ class FeatureInclusionOrderTest < MiniTest::Spec
 
   module OverridingTitle
     def title
-      "I am number two, " + super
+      "I am number two, #{super}"
     end
   end
 
@@ -65,6 +79,11 @@ class FeatureInclusionOrderTest < MiniTest::Spec
   end
 
   it do
-    _(representer.new(OpenStruct.new(song: Object)).to_hash).must_equal({"title"=>"I am number two, I was first!", "song"=>{"title"=>"I am number two, I was first!"}})
+    _(representer.new(OpenStruct.new(song: Object)).to_hash).must_equal(
+      {
+        "title" => "I am number two, I was first!",
+        "song"  => {"title"=>"I am number two, I was first!"}
+      }
+    )
   end
 end

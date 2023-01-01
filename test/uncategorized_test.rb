@@ -6,31 +6,37 @@ class StopWhenIncomingObjectFragmentIsNilTest < MiniTest::Spec
 
   representer!(decorator: true) do
     property :id
-    collection :songs, class: Song, parse_pipeline: ->(input, options) { # TODO: test if :doc is set for parsing. test if options are ok and contain :user_options!
-                Representable::Pipeline[*parse_functions.insert(3, Representable::StopOnNil)]
-                } do
+    collection :songs, class: Song, parse_pipeline: ->(_input, _options) { # TODO: test if :doc is set for parsing. test if options are ok and contain :user_options!
+                                                      Representable::Pipeline[*parse_functions.insert(3, Representable::StopOnNil)]
+                                                    } do
       property :title
     end
   end
 
   it do
     album = Album.new
-    _(representer.new(album).from_hash({"id"=>1, "songs"=>[{"title"=>"Walkie Talkie"}]}).songs).must_equal [Song.new("Walkie Talkie")]
+    _(
+      representer.new(album).from_hash(
+        {
+          "id"    => 1,
+          "songs" => [{"title"=>"Walkie Talkie"}]
+        }
+      ).songs
+    ).must_equal [Song.new("Walkie Talkie")]
   end
 
   it do
     album = Album.new(2, ["original"])
-    _(representer.new(album).from_hash({"id"=>1, "songs"=>nil}).songs).must_equal ["original"]
+    _(representer.new(album).from_hash({"id" => 1, "songs" => nil}).songs).must_equal ["original"]
   end
-
 end
 
 class RenderPipelineOptionTest < MiniTest::Spec
   Album   = Struct.new(:id, :songs)
-  NilToNA = ->(input, options) { input.nil? ? "n/a" : input }
+  NilToNA = ->(input, _options) { input.nil? ? "n/a" : input }
 
   representer!(decorator: true) do
-    property :id, render_pipeline: ->(input, options) do
+    property :id, render_pipeline: ->(_input, options) do
       Representable::Pipeline[*render_functions.insert(2, options[:options][:user_options][:function])]
     end
   end
@@ -43,15 +49,14 @@ class RenderPipelineOptionTest < MiniTest::Spec
     _(decorator.to_hash(user_options: {function: NilToNA})).must_equal({"id"=>"n/a"})
     _(decorator.to_hash(user_options: {function: nil})).must_equal({"id"=>"n/a"}) # non-sense function is not applied.
   end
-
 end
 
 class ParsePipelineOptionTest < MiniTest::Spec
   Album   = Struct.new(:id, :songs)
-  NilToNA = ->(input, options) { input.nil? ? "n/a" : input }
+  NilToNA = ->(input, _options) { input.nil? ? "n/a" : input }
 
   representer!(decorator: true) do
-    property :id, parse_pipeline: ->(input, options) do
+    property :id, parse_pipeline: ->(_input, options) do
       Representable::Pipeline[*parse_functions.insert(3, options[:options][:user_options][:function])].extend(Representable::Pipeline::Debug)
     end
   end

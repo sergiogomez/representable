@@ -1,7 +1,6 @@
 # Representable
 
 Representable maps Ruby objects to documents and back.
-
 ![Build
 Status](https://github.com/trailblazer/representable/actions/workflows/ci.yml/badge.svg?branch=master)
 [![Gem Version](https://badge.fury.io/rb/representable.svg)](http://badge.fury.io/rb/representable)

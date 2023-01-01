@@ -1,7 +1,8 @@
-require 'test_helper'
+require "test_helper"
 
 class InheritTest < MiniTest::Spec
-  module SongRepresenter # it's important to have a global module so we can test if stuff gets overridden in the original module.
+  # it's important to have a global module so we can test if stuff gets overridden in the original module.
+  module SongRepresenter
     include Representable::Hash
     property :name, :as => :title do
       property :string, :as => :str
@@ -16,11 +17,11 @@ class InheritTest < MiniTest::Spec
     representer! do
       include SongRepresenter
 
-      property :track, :inherit => true, :getter => lambda { |*| "n/a" }
+      property :track, :inherit => true, :getter => ->(*) { "n/a" }
     end
 
-    it { _(SongRepresenter.prepare(song).to_hash).must_equal({"title"=>{"str"=>"Roxanne"}, "no"=>1}) }
-    it { _(representer.prepare(song).to_hash).must_equal({"title"=>{"str"=>"Roxanne"}, "no"=>"n/a"}) } # as: inherited.
+    it { _(SongRepresenter.prepare(song).to_hash).must_equal({"title" => {"str"=>"Roxanne"}, "no" => 1}) }
+    it { _(representer.prepare(song).to_hash).must_equal({"title" => {"str"=>"Roxanne"}, "no" => "n/a"}) } # as: inherited.
   end
 
   describe ":inherit with empty inline representer" do
@@ -32,9 +33,27 @@ class InheritTest < MiniTest::Spec
       end
     end
 
-    it { _(SongRepresenter.prepare(Song.new(Struct.new(:string).new("Believe It"), 1)).to_hash).must_equal({"title"=>{"str"=>"Believe It"}, "no"=>1}) }
+    it {
+      _(
+        SongRepresenter.prepare(
+          Song.new(
+            Struct.new(:string).new("Believe It"),
+            1
+          )
+        ).to_hash
+      ).must_equal({"title" => {"str"=>"Believe It"}, "no" => 1})
+    }
     # the block doesn't override the inline representer.
-    it { _(representer.prepare( Song.new(Struct.new(:string).new("Believe It"), 1)).to_hash).must_equal({"title"=>{"str"=>"Believe It"}, "no"=>1}) }
+    it {
+      _(
+        representer.prepare(
+          Song.new(
+            Struct.new(:string).new("Believe It"),
+            1
+          )
+        ).to_hash
+      ).must_equal({"title" => {"str"=>"Believe It"}, "no" => 1})
+    }
   end
 
   describe ":inherit with overriding inline representer" do
@@ -48,7 +67,16 @@ class InheritTest < MiniTest::Spec
       end
     end
 
-    it { _(representer.prepare( Song.new(Struct.new(:string, :length).new("Believe It", 10), 1)).to_hash).must_equal({"title"=>{"s"=>"Believe It","length"=>10}, "no"=>1}) }
+    it {
+      _(
+        representer.prepare(
+          Song.new(
+            Struct.new(:string, :length).new("Believe It", 10),
+            1
+          )
+        ).to_hash
+      ).must_equal({"title" => {"s" => "Believe It", "length" => 10}, "no" => 1})
+    }
   end
 
   describe ":inherit with empty inline and options" do
@@ -60,8 +88,26 @@ class InheritTest < MiniTest::Spec
       end
     end
 
-    it { _(SongRepresenter.prepare(Song.new(Struct.new(:string).new("Believe It"), 1)).to_hash).must_equal({"title"=>{"str"=>"Believe It"}, "no"=>1}) }
-    it { _(representer.prepare( Song.new(Struct.new(:string).new("Believe It"), 1)).to_hash).must_equal({"name"=>{"str"=>"Believe It"}, "no"=>1}) }
+    it {
+      _(
+        SongRepresenter.prepare(
+          Song.new(
+            Struct.new(:string).new("Believe It"),
+            1
+          )
+        ).to_hash
+      ).must_equal({"title" => {"str"=>"Believe It"}, "no" => 1})
+    }
+    it {
+      _(
+        representer.prepare(
+          Song.new(
+            Struct.new(:string).new("Believe It"),
+            1
+          )
+        ).to_hash
+      ).must_equal({"name" => {"str"=>"Believe It"}, "no" => 1})
+    }
   end
 
   describe ":inherit with inline without block but options" do
@@ -71,11 +117,27 @@ class InheritTest < MiniTest::Spec
       property :name, :inherit => true, :as => :name # FIXME: add :getter or something else dynamic since this is double-wrapped.
     end
 
-    it { _(SongRepresenter.prepare(Song.new(Struct.new(:string).new("Believe It"), 1)).to_hash).must_equal({"title"=>{"str"=>"Believe It"}, "no"=>1}) }
-    it { _(representer.prepare( Song.new(Struct.new(:string).new("Believe It"), 1)).to_hash).must_equal({"name"=>{"str"=>"Believe It"}, "no"=>1}) }
+    it {
+      _(
+        SongRepresenter.prepare(
+          Song.new(
+            Struct.new(:string).new("Believe It"),
+            1
+          )
+        ).to_hash
+      ).must_equal({"title" => {"str"=>"Believe It"}, "no" => 1})
+    }
+    it {
+      _(
+        representer.prepare(
+          Song.new(
+            Struct.new(:string).new("Believe It"),
+            1
+          )
+        ).to_hash
+      ).must_equal({"name" => {"str"=>"Believe It"}, "no" => 1})
+    }
   end
-
-
 
   # no :inherit
   describe "overwriting without :inherit" do
@@ -90,11 +152,10 @@ class InheritTest < MiniTest::Spec
 
       definition = representer.representable_attrs.get(:track) # TODO: find a better way to assert Definition identity.
       # definition.keys.size.must_equal 2
-      _(definition[:representable]).   must_equal true
+      _(definition[:representable]).must_equal true
       _(definition.name).must_equal "track" # was "no".
     end
   end
-
 
   # decorator
   describe ":inherit with decorator" do
@@ -108,7 +169,7 @@ class InheritTest < MiniTest::Spec
       end
     end
 
-    let(:inheriting) {
+    let(:inheriting) do
       class InheritingDecorator < representer
         include Representable::Debug
         property :hit, :inherit => true do
@@ -117,17 +178,44 @@ class InheritTest < MiniTest::Spec
         end
         self
       end
-    }
+    end
 
-    it { _(representer.new(OpenStruct.new(hit: OpenStruct.new(title: "I WILL BE OVERRIDDEN", :length => "2:59"))).to_hash).must_equal(
-      {"hit"=>{"title"=>"Cheap Transistor Radio"}}) }
+    it {
+      _(
+        representer.new(
+          OpenStruct.new(
+            hit: OpenStruct.new(
+              title: "I WILL BE OVERRIDDEN",
+              :length => "2:59"
+            )
+          )
+        ).to_hash
+      ).must_equal(
+        {"hit"=>{"title"=>"Cheap Transistor Radio"}}
+      )
+    }
 
     # inheriting decorator inherits inline representer class (InlineRepresenter#title).
     # inheriting decorator adds :length.
-    it { _(inheriting.new(OpenStruct.new(:hit => OpenStruct.new(:title => "Hole In Your Soul", :length => "2:59"))).to_hash).must_equal(
-      {"hit"=>{"title"=>"Cheap Transistor Radio", "length"=>"2:59"}}) }
+    it {
+      _(
+        inheriting.new(
+          OpenStruct.new(
+            :hit => OpenStruct.new(
+              :title  => "Hole In Your Soul",
+              :length => "2:59"
+            )
+          )
+        ).to_hash
+      ).must_equal(
+        {
+          "hit" => {
+            "title" => "Cheap Transistor Radio", "length" => "2:59"
+          }
+        }
+      )
+    }
   end
-
 
   # :inherit when property doesn't exist, yet.
   describe ":inherit without inheritable property" do
@@ -135,10 +223,9 @@ class InheritTest < MiniTest::Spec
       property :name, :inherit => true
     end
 
-    it { _(representer.prepare(Song.new("The Beginning")).to_hash).must_equal({"name"=>"The Beginning"})}
+    it { _(representer.prepare(Song.new("The Beginning")).to_hash).must_equal({"name"=>"The Beginning"}) }
   end
 end
-
 
 # class InheritancingTest < MiniTest::Spec
 #   class SongDecorator < Representable::Decorator

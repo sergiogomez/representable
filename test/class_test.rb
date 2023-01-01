@@ -1,7 +1,6 @@
-require 'test_helper'
+require "test_helper"
 
 class ClassTest < BaseTest
-
   class RepresentingSong
     attr_reader :name
 
@@ -11,7 +10,6 @@ class ClassTest < BaseTest
       self # DISCUSS: do we wanna be able to return whatever we want here? this is a trick to replace the actual object
     end
   end
-
 
   describe "class: ClassName, only" do
     representer! do
@@ -25,10 +23,9 @@ class ClassTest < BaseTest
     end
   end
 
-
   describe "class: lambda, only" do
     representer! do
-      property :song, :class => lambda { |*| RepresentingSong }
+      property :song, :class => ->(*) { RepresentingSong }
     end
 
     it "creates fresh instance and doesn't extend" do
@@ -38,11 +35,10 @@ class ClassTest < BaseTest
     end
   end
 
-
   # this throws a DeserializationError now.
   describe "lambda { nil }" do
     representer! do
-      property :title, :class  => nil
+      property :title, :class => nil
     end
 
     it do
@@ -52,54 +48,71 @@ class ClassTest < BaseTest
     end
   end
 
-
   describe "lambda receiving fragment and args" do
-    let(:klass) { Class.new do
-      class << self
-        attr_accessor :args
-      end
+    let(:klass) do
+      Class.new do
+        class << self
+          attr_accessor :args
+        end
 
-      def from_hash(*)
-        self.class.new
+        def from_hash(*)
+          self.class.new
+        end
       end
-    end }
+    end
 
     representer!(:inject => :klass) do
       _klass = klass
-      property :song, :class => lambda { |options| _klass.args=([options[:fragment],options[:user_options]]); _klass }
+      property :song, :class => ->(options) { _klass.args = ([options[:fragment], options[:user_options]]); _klass }
     end
 
-    it { _(representer.prepare(OpenStruct.new).from_hash({"song" => {"name" => "Captured"}}, user_options: {volume: true}).song.class.args).
-      must_equal([{"name"=>"Captured"}, {:volume=>true}]) }
+    it {
+      _(
+        representer.prepare(OpenStruct.new).from_hash(
+          {"song" => {"name" => "Captured"}},
+          user_options: {volume: true}
+        ).song.class.args
+      )
+        .must_equal([{"name"=>"Captured"}, {:volume=>true}])
+    }
   end
-
 
   describe "collection: lambda receiving fragment and args" do
-    let(:klass) { Class.new do
-      class << self
-        attr_accessor :args
-      end
+    let(:klass) do
+      Class.new do
+        class << self
+          attr_accessor :args
+        end
 
-      def from_hash(*)
-        self.class.new
+        def from_hash(*)
+          self.class.new
+        end
       end
-    end }
+    end
 
     representer!(:inject => :klass) do
       _klass = klass
-      collection :songs, :class => lambda { |options| _klass.args=([options[:fragment],options[:index],options[:user_options]]); _klass }
+      collection :songs, class: ->(options) {
+                                  _klass.args = ([options[:fragment], options[:index], options[:user_options]]); _klass
+                                }
     end
 
-    it { _(representer.prepare(OpenStruct.new).from_hash({"songs" => [{"name" => "Captured"}]}, user_options: {volume: true}).songs.first.class.args).
-      must_equal([{"name"=>"Captured"}, 0, {:volume=>true}]) }
+    it {
+      _(
+        representer.prepare(OpenStruct.new).from_hash(
+          {"songs" => [{"name" => "Captured"}]},
+          user_options: {volume: true}
+        ).songs.first.class.args
+      )
+        .must_equal([{"name"=>"Captured"}, 0, {:volume=>true}])
+    }
   end
-
 
   describe "class: implementing #from_hash" do
     let(:parser) do
       Class.new do
         def from_hash(*)
-          [1,2,3,4]
+          [1, 2, 3, 4]
         end
       end
     end
@@ -109,11 +122,11 @@ class ClassTest < BaseTest
     end
 
     it "allows returning arbitrary objects in #from_hash" do
-      _(representer.prepare(OpenStruct.new).from_hash({"song" => 1}).song).must_equal [1,2,3,4]
+      _(representer.prepare(OpenStruct.new).from_hash({"song" => 1}).song).must_equal [1, 2, 3, 4]
     end
   end
 end
 
-#TODO: test fragment,
+# TODO: test fragment,
 
 # `class: Song` only, no :extend.

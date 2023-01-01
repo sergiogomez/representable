@@ -1,5 +1,5 @@
-require 'test_helper'
-require 'representable/xml/hash'
+require "test_helper"
+require "representable/xml/hash"
 
 class XMLBindingTest < MiniTest::Spec
   module SongRepresenter
@@ -18,9 +18,6 @@ class XMLBindingTest < MiniTest::Spec
     @doc  = Nokogiri::XML::Document.new
     @song = SongWithRepresenter.new("Thinning the Herd")
   end
-
-
-
 
   describe "AttributeBinding" do
     describe "with plain text items" do

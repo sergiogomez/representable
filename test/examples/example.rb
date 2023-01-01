@@ -1,8 +1,8 @@
-require 'bundler'
+require "bundler"
 Bundler.setup
 
-require 'representable/yaml'
-require 'ostruct'
+require "representable/yaml"
+require "ostruct"
 
 def reset_representer(*module_name)
   module_name.each do |mod|
@@ -32,15 +32,13 @@ puts rox.inspect
 module SongRepresenter
   include Representable::JSON
 
-  self.representation_wrap= :hit
+  self.representation_wrap = :hit
 
   property :title
   property :track
 end
 
 puts song.extend(SongRepresenter).to_json
-
-
 
 ######### collections
 
@@ -54,17 +52,15 @@ module SongRepresenter
   collection :composers
 end
 
-
 song = Song.new(:title => "Fallout", :composers => ["Stewart Copeland", "Sting"])
 puts song.extend(SongRepresenter).to_json
-
 
 ######### nesting types
 
 class Album < OpenStruct
   def name
     puts @table.inspect
-    #@attributes
+    # @attributes
     @table[:name]
   end
 end
@@ -91,14 +87,15 @@ end
 album = Album.new(:name => "The Police", :songs => [song, Song.new(:title => "Synchronicity")])
 puts album.extend(AlbumRepresenter).to_json
 
-
-album = Album.new.extend(AlbumRepresenter).from_json(%{{"name":"Offspring","songs":[{"title":"Genocide"},{"title":"Nitro","composers":["Offspring"]}]}
-})
+album = Album.new.extend(AlbumRepresenter).from_json(
+  %{{"name":"Offspring","songs":[{"title":"Genocide"},{"title":"Nitro","composers":["Offspring"]}]}
+}
+)
 puts album.inspect
 
 reset_representer(SongRepresenter)
 
-######### using helpers (customizing the rendering/parsing) 
+######### using helpers (customizing the rendering/parsing)
 module AlbumRepresenter
   include Representable::JSON
 
@@ -107,11 +104,10 @@ module AlbumRepresenter
   end
 end
 
-puts Album.new(:name => "The Police").
-  extend(AlbumRepresenter).to_json
+puts Album.new(:name => "The Police")
+          .extend(AlbumRepresenter).to_json
 
 reset_representer(SongRepresenter)
-
 
 ######### inheritance
 module SongRepresenter
@@ -128,13 +124,11 @@ module CoverSongRepresenter
   property :covered_by
 end
 
-
 song = Song.new(:title => "Truth Hits Everybody", :covered_by => "No Use For A Name")
 puts song.extend(CoverSongRepresenter).to_json
 
-
 ### XML
-require 'representable/xml'
+require "representable/xml"
 module SongRepresenter
   include Representable::XML
 
@@ -147,9 +141,8 @@ puts song.extend(SongRepresenter).to_xml
 
 reset_representer(SongRepresenter)
 
-
 ### YAML
-require 'representable/yaml'
+require "representable/yaml"
 module SongRepresenter
   include Representable::YAML
 
@@ -159,11 +152,9 @@ module SongRepresenter
 end
 puts song.extend(SongRepresenter).to_yaml
 
-
 SongRepresenter.module_eval do
   @representable_attrs = nil
 end
-
 
 ### YAML
 module SongRepresenter
@@ -214,7 +205,6 @@ end
 songs = [Song.new(title: "Weirdo", track: 5), CoverSong.new(title: "Truth Hits Everybody", track: 6, copyright: "The Police")]
 album = Album.new(name: "Incognito", songs: songs)
 
-
 reset_representer(SongRepresenter, AlbumRepresenter)
 
 module SongRepresenter
@@ -235,7 +225,7 @@ module AlbumRepresenter
   include Representable::Hash
 
   property :name
-  collection :songs, :extend => lambda { |song| song.is_a?(CoverSong) ? CoverSongRepresenter : SongRepresenter }
+  collection :songs, :extend => ->(song) { song.is_a?(CoverSong) ? CoverSongRepresenter : SongRepresenter }
 end
 
 puts album.extend(AlbumRepresenter).to_hash
@@ -246,12 +236,20 @@ module AlbumRepresenter
   include Representable::Hash
 
   property :name
-  collection :songs, 
-    :extend => lambda { |song| song.is_a?(CoverSong) ? CoverSongRepresenter : SongRepresenter },
-    :class  => lambda { |hsh| hsh.has_key?("copyright") ? CoverSong : Song } #=> {"title"=>"Weirdo", "track"=>5}
+  collection :songs,
+             :extend => ->(song) { song.is_a?(CoverSong) ? CoverSongRepresenter : SongRepresenter },
+             :class  => ->(hsh) { hsh.key?("copyright") ? CoverSong : Song } #=> {"title"=>"Weirdo", "track"=>5}
 end
 
-album = Album.new.extend(AlbumRepresenter).from_hash({"name"=>"Incognito", "songs"=>[{"title"=>"Weirdo", "track"=>5}, {"title"=>"Truth Hits Everybody", "track"=>6, "copyright"=>"The Police"}]})
+album = Album.new.extend(AlbumRepresenter).from_hash(
+  {
+    "name"  => "Incognito",
+    "songs" => [
+      {"title" => "Weirdo", "track" => 5},
+      {"title" => "Truth Hits Everybody", "track" => 6, "copyright" => "The Police"}
+    ]
+  }
+)
 puts album.inspect
 
 reset_representer(AlbumRepresenter)
@@ -260,12 +258,20 @@ module AlbumRepresenter
   include Representable::Hash
 
   property :name
-  collection :songs, 
-    :extend   => lambda { |song| song.is_a?(CoverSong) ? CoverSongRepresenter : SongRepresenter },
-    :instance => lambda { |hsh| hsh.has_key?("copyright") ? CoverSong.new : Song.new(original: true) }
+  collection :songs,
+             :extend   => ->(song) { song.is_a?(CoverSong) ? CoverSongRepresenter : SongRepresenter },
+             :instance => ->(hsh) { hsh.key?("copyright") ? CoverSong.new : Song.new(original: true) }
 end
 
-album = Album.new.extend(AlbumRepresenter).from_hash({"name"=>"Incognito", "songs"=>[{"title"=>"Weirdo", "track"=>5}, {"title"=>"Truth Hits Everybody", "track"=>6, "copyright"=>"The Police"}]})
+album = Album.new.extend(AlbumRepresenter).from_hash(
+  {
+    "name"  => "Incognito",
+    "songs" => [
+      {"title" => "Weirdo", "track" => 5},
+      {"title" => "Truth Hits Everybody", "track" => 6, "copyright" => "The Police"}
+    ]
+  }
+)
 puts album.inspect
 
 ######### #hash
@@ -287,19 +293,18 @@ module FavoriteSongsRepresenter
   include Representable::JSON::Hash
 end
 
-puts( {"Nick" => "Hyper Music", "El" => "Blown In The Wind"}.extend(FavoriteSongsRepresenter).to_json)
+puts({"Nick" => "Hyper Music", "El" => "Blown In The Wind"}.extend(FavoriteSongsRepresenter).to_json)
 
-require 'representable/json/hash'
+require "representable/json/hash"
 module FavoriteSongsRepresenter
   include Representable::JSON::Hash
 
   values extend: SongRepresenter, class: Song
 end
 
-puts( {"Nick" => Song.new(title: "Hyper Music")}.extend(FavoriteSongsRepresenter).to_json)
+puts({"Nick" => Song.new(title: "Hyper Music")}.extend(FavoriteSongsRepresenter).to_json)
 
-
-require 'representable/json/collection'
+require "representable/json/collection"
 module SongsRepresenter
   include Representable::JSON::Collection
 

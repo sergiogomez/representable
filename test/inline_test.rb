@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class InlineTest < MiniTest::Spec
   let(:song)    { Song.new("Alive") }
@@ -7,8 +7,11 @@ class InlineTest < MiniTest::Spec
   {
     :hash => [Representable::Hash, {"song"=>{"name"=>"Alive"}}, {"song"=>{"name"=>"You've Taken Everything"}}],
     :json => [Representable::JSON, "{\"song\":{\"name\":\"Alive\"}}", "{\"song\":{\"name\":\"You've Taken Everything\"}}"],
-    :xml  => [Representable::XML, "<open_struct>\n  <song>\n    <name>Alive</name>\n  </song>\n</open_struct>", "<open_struct><song><name>You've Taken Everything</name></song>/open_struct>"],
-    :yaml => [Representable::YAML, "---\nsong:\n  name: Alive\n", "---\nsong:\n  name: You've Taken Everything\n"],
+    :xml  => [
+      Representable::XML, "<open_struct>\n  <song>\n    <name>Alive</name>\n  </song>\n</open_struct>",
+      "<open_struct><song><name>You've Taken Everything</name></song>/open_struct>"
+    ],
+    :yaml => [Representable::YAML, "---\nsong:\n  name: Alive\n", "---\nsong:\n  name: You've Taken Everything\n"]
   }.each do |format, cfg|
     mod, output, input = cfg
 
@@ -22,15 +25,18 @@ class InlineTest < MiniTest::Spec
       let(:format) { format }
 
       it { render(request).must_equal_document output }
-      it { _(parse(request, input).song.name).must_equal "You've Taken Everything"}
+      it { _(parse(request, input).song.name).must_equal "You've Taken Everything" }
     end
   end
 
   {
     :hash => [Representable::Hash, {"songs"=>[{"name"=>"Alive"}]}, {"songs"=>[{"name"=>"You've Taken Everything"}]}],
     :json => [Representable::JSON, "{\"songs\":[{\"name\":\"Alive\"}]}", "{\"songs\":[{\"name\":\"You've Taken Everything\"}]}"],
-    :xml  => [Representable::XML, "<open_struct>\n  <song>\n    <name>Alive</name>\n  </song>\n</open_struct>", "<open_struct><song><name>You've Taken Everything</name></song></open_struct>", { :as => :song }],
-    :yaml => [Representable::YAML, "---\nsongs:\n- name: Alive\n", "---\nsongs:\n- name: You've Taken Everything\n"],
+    :xml  => [
+      Representable::XML, "<open_struct>\n  <song>\n    <name>Alive</name>\n  </song>\n</open_struct>",
+      "<open_struct><song><name>You've Taken Everything</name></song></open_struct>", {:as => :song}
+    ],
+    :yaml => [Representable::YAML, "---\nsongs:\n- name: Alive\n", "---\nsongs:\n- name: You've Taken Everything\n"]
   }.each do |format, cfg|
     mod, output, input, collection_options = cfg
     collection_options ||= {}
@@ -47,7 +53,7 @@ class InlineTest < MiniTest::Spec
       let(:format) { format } # FIXME: why do we have to define this?
 
       it { render(request).must_equal_document output }
-      it { _(parse(request, input).songs.first.name).must_equal "You've Taken Everything"}
+      it { _(parse(request, input).songs.first.name).must_equal "You've Taken Everything" }
     end
   end
 
@@ -61,13 +67,11 @@ class InlineTest < MiniTest::Spec
     it { _(request.to_hash).must_equal({"song"=>{"name"=>"Alive"}}) }
   end
 
-
   for_formats(
-    :hash => [Representable::Hash, {}],
+    :hash => [Representable::Hash, {}]
     # :xml  => [Representable::XML, "<open_struct>\n  <song>\n    <name>Alive</name>\n  </song>\n</open_struct>", "<open_struct><song><name>You've Taken Everything</name></song>/open_struct>"],
     # :yaml => [Representable::YAML, "---\nsong:\n  name: Alive\n", "---\nsong:\n  name: You've Taken Everything\n"],
   ) do |format, mod, input|
-
     describe "parsing [#{format}] where nested property missing" do
       representer!(:module => mod) do
         property :song do
@@ -80,7 +84,6 @@ class InlineTest < MiniTest::Spec
       end
     end
   end
-
 
   describe "inheriting from outer representer" do
     let(:request) { Struct.new(:song, :requester).new(song, "Josephine") }
@@ -96,8 +99,8 @@ class InlineTest < MiniTest::Spec
 
       let(:decorator) { representer.prepare(request) }
 
-      it { _(decorator.to_hash).must_equal({"requester"=>"Josephine", "song"=>{"name"=>"Alive"}}) }
-      it { _(decorator.from_hash({"song"=>{"name"=>"You've Taken Everything"}}).song.name).must_equal "You've Taken Everything"}
+      it { _(decorator.to_hash).must_equal({"requester" => "Josephine", "song" => {"name"=>"Alive"}}) }
+      it { _(decorator.from_hash({"song"=>{"name"=>"You've Taken Everything"}}).song.name).must_equal "You've Taken Everything" }
     end
   end
 
@@ -144,13 +147,13 @@ class InlineTest < MiniTest::Spec
   #   end
   # end
 
-
-  for_formats({
-      :hash => [Representable::Hash, {"album" => {"artist" => {"label"=>"Epitaph"}}}],
+  for_formats(
+    {
+      :hash => [Representable::Hash, {"album" => {"artist" => {"label"=>"Epitaph"}}}]
       # :xml  => [Representable::XML, "<open_struct></open_struct>"],
-      #:yaml => [Representable::YAML, "---\nlabel:\n  label: Epitaph\n  owner: Brett Gurewitz\n"]
-    }) do |format, mod, output, input|
-
+      # :yaml => [Representable::YAML, "---\nlabel:\n  label: Epitaph\n  owner: Brett Gurewitz\n"]
+    }
+  ) do |format, mod, output, _input|
     class ArtistDecorator < Representable::Decorator
       include Representable::JSON
       property :label
@@ -162,7 +165,7 @@ class InlineTest < MiniTest::Spec
       representer!(:module => mod) do
         self.representation_wrap = "album"
 
-        property :artist, :getter => lambda { |args| represented }, :decorator => ArtistDecorator
+        property :artist, :getter => ->(_args) { represented }, :decorator => ArtistDecorator
       end
 
       let(:album) { OpenStruct.new(:label => "Epitaph").extend(representer) }
@@ -173,14 +176,14 @@ class InlineTest < MiniTest::Spec
     end
   end
 
-
   # test helper methods within inline representer
-  for_formats({
-    :hash => [Representable::Hash, {"song"=>{"name"=>"ALIVE"}}],
-    :xml  => [Representable::XML, "<request>\n  <song>\n    <name>ALIVE</name>\n  </song>\n</request>"],
-    :yaml => [Representable::YAML, "---\nsong:\n  name: ALIVE\n"],
-  }) do |format, mod, output|
-
+  for_formats(
+    {
+      :hash => [Representable::Hash, {"song"=>{"name"=>"ALIVE"}}],
+      :xml  => [Representable::XML, "<request>\n  <song>\n    <name>ALIVE</name>\n  </song>\n</request>"],
+      :yaml => [Representable::YAML, "---\nsong:\n  name: ALIVE\n"]
+    }
+  ) do |format, mod, output|
     describe "helper method within inline representer [#{format}]" do
       let(:format) { format }
 
@@ -207,7 +210,6 @@ class InlineTest < MiniTest::Spec
     end
   end
 
-
   describe "include module in inline representers" do
     representer! do
       extension = Module.new do
@@ -221,12 +223,19 @@ class InlineTest < MiniTest::Spec
       end
     end
 
-    it do _(OpenStruct.new(:song => OpenStruct.new(:title => "The Fever And The Sound", :artist => "Strung Out")).extend(representer).
-      to_hash).
-      must_equal({"song"=>{"artist"=>"Strung Out", "title"=>"The Fever And The Sound"}})
+    it do
+      _(
+        OpenStruct.new(
+          :song => OpenStruct.new(
+            :title  => "The Fever And The Sound",
+            :artist => "Strung Out"
+          )
+        ).extend(representer)
+              .to_hash
+      )
+        .must_equal({"song"=>{"artist" => "Strung Out", "title" => "The Fever And The Sound"}})
     end
   end
-
 
   # define method in inline representer
   describe "define method in inline representer" do

@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class PrepareTest < BaseTest
   class PreparerClass
@@ -6,10 +6,10 @@ class PrepareTest < BaseTest
       @object = object
     end
 
-    def ==(b)
-      return unless b.instance_of?(PreparerClass)
+    def ==(other)
+      return unless other.instance_of?(PreparerClass)
 
-      object == b.object
+      object == other.object
     end
 
     attr_reader :object
@@ -18,10 +18,10 @@ class PrepareTest < BaseTest
   describe "#to_hash" do # TODO: introduce :representable option?
     representer! do
       property :song,
-        :prepare       => lambda { |options| options[:binding][:arbitrary].new(options[:input]) },
-        :arbitrary     => PreparerClass,
-        :extend => true,
-        :representable => false # don't call #to_hash.
+               :prepare       => ->(options) { options[:binding][:arbitrary].new(options[:input]) },
+               :arbitrary     => PreparerClass,
+               :extend        => true,
+               :representable => false # don't call #to_hash.
     end
 
     let(:hit) { Struct.new(:song).new(song).extend(representer) }
@@ -30,7 +30,6 @@ class PrepareTest < BaseTest
       # render(hit).must_equal_document(output)
       _(hit.to_hash).must_equal({"song" => PreparerClass.new(song)})
     end
-
 
     # it "calls #from_hash on the existing song instance, nothing else" do
     #   song_id = hit.song.object_id
@@ -42,16 +41,15 @@ class PrepareTest < BaseTest
     # end
   end
 
-
   describe "#from_hash" do
     representer! do
       property :song,
-        :prepare       => lambda { |options| options[:binding][:arbitrary].new(options[:input]) },
-        :arbitrary     => PreparerClass,
-        #:extend => true, # TODO: typed: true would be better.
-        :instance => String.new, # pass_fragment
-        :pass_options  => true,
-        :representable => false # don't call #to_hash.
+               :prepare       => ->(options) { options[:binding][:arbitrary].new(options[:input]) },
+               :arbitrary     => PreparerClass,
+               # :extend => true, # TODO: typed: true would be better.
+               :instance      => String.new, # pass_fragment
+               :pass_options  => true,
+               :representable => false # don't call #to_hash.
     end
 
     let(:hit) { Struct.new(:song).new.extend(representer) }

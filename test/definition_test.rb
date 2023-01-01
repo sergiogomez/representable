@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class DefinitionTest < MiniTest::Spec
   Definition = Representable::Definition
@@ -17,7 +17,6 @@ class DefinitionTest < MiniTest::Spec
       end
       _(definition.name).must_equal "song"
 
-      #
       _(definition[:awesome]).must_equal true
       _(definition[:parse_filter]).must_equal Representable::Pipeline[1]
       _(definition[:render_filter]).must_equal Representable::Pipeline[]
@@ -80,7 +79,6 @@ class DefinitionTest < MiniTest::Spec
     end
   end
 
-
   # delete!
   describe "#delete!" do
     let(:definition) { Definition.new(:song, serialize: "remove me!") }
@@ -92,9 +90,10 @@ class DefinitionTest < MiniTest::Spec
 
   # #inspect
   describe "#inspect" do
-    it { _(Definition.new(:songs).inspect).must_equal "#<Representable::Definition ==>songs @options={:name=>\"songs\", :parse_filter=>[], :render_filter=>[]}>" }
+    it {
+      _(Definition.new(:songs).inspect).must_equal "#<Representable::Definition ==>songs @options={:name=>\"songs\", :parse_filter=>[], :render_filter=>[]}>"
+    }
   end
-
 
   describe "generic API" do
     before do
@@ -124,7 +123,6 @@ class DefinitionTest < MiniTest::Spec
       end
     end
 
-
     describe "#representable?" do
       it { assert Definition.new(:song, :representable => true).representable? }
       it { _(Definition.new(:song, :representable => true, :extend => Object).representable?).must_equal true }
@@ -132,7 +130,6 @@ class DefinitionTest < MiniTest::Spec
       it { assert Definition.new(:song, :extend => Object).representable? }
       it { refute Definition.new(:song).representable? }
     end
-
 
     it "responds to #getter and returns string" do
       assert_equal "songs", @def.getter
@@ -153,7 +150,6 @@ class DefinitionTest < MiniTest::Spec
         _(dfn[:extend].(nil)).must_equal Module
       end
     end
-
 
     describe "#clone" do
       subject { Representable::Definition.new(:title, :volume => 9, :clonable => ::Representable::Option(1)) }
@@ -183,7 +179,6 @@ class DefinitionTest < MiniTest::Spec
     end
   end
 
-
   describe "#binding" do
     it "returns true when :binding is set" do
       assert Representable::Definition.new(:songs, :binding => Object)[:binding]
@@ -196,7 +191,11 @@ class DefinitionTest < MiniTest::Spec
 
   describe "#create_binding" do
     it "executes the block (without special context)" do
-      definition = Representable::Definition.new(:title, :binding => lambda { |*args| @binding = Representable::Binding.new(*args) })
+      definition = Representable::Definition.new(
+        :title, :binding => ->(*args) {
+                              @binding = Representable::Binding.new(*args)
+                            }
+      )
       _(definition.create_binding).must_equal @binding
     end
   end
@@ -210,7 +209,6 @@ class DefinitionTest < MiniTest::Spec
       assert @def.array?
     end
   end
-
 
   describe ":default => value" do
     it "responds to #default" do

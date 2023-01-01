@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 # Include Inherit Module And Decorator Test
 class SchemaTest < MiniTest::Spec
@@ -18,7 +18,6 @@ class SchemaTest < MiniTest::Spec
     end
   end
 
-
   module Module
     include Representable::Hash
     feature LinkFeature
@@ -34,12 +33,10 @@ class SchemaTest < MiniTest::Spec
       end
     end
 
-    property :album, :extend => lambda { raise "don't manifest me!" } # this is not an inline decorator, don't manifest it.
-
+    property :album, :extend => -> { fail "don't manifest me!" } # this is not an inline decorator, don't manifest it.
 
     include Genre # Schema::Included::included is called!
   end
-
 
   class WithLocationStreetRepresenter < Representable::Decorator
     include Representable::Hash
@@ -61,13 +58,25 @@ class SchemaTest < MiniTest::Spec
     let(:label) { OpenStruct.new(:name => "Epitaph", :location => OpenStruct.new(:city => "Sanfran", :name => "DON'T SHOW ME!")) }
 
     # Module does correctly include features in inlines.
-    it { _(band.extend(Module).to_hash).must_equal({"label"=>{"name"=>"Epitaph", "location"=>{"city"=>"Sanfran"}}, "genre"=>"Punkrock"}) }
+    it {
+      _(band.extend(Module).to_hash).must_equal(
+        {
+          "label" => {"name" => "Epitaph", "location" => {"city"=>"Sanfran"}},
+          "genre" => "Punkrock"
+        }
+      )
+    }
 
     # Decorator does correctly include features in inlines.
-    it { _(Decorator.new(band).to_hash).must_equal({"label"=>{"name"=>"Epitaph", "location"=>{"city"=>"Sanfran"}}, "genre"=>"Punkrock"}) }
+    it {
+      _(Decorator.new(band).to_hash).must_equal(
+        {
+          "label" => {"name" => "Epitaph", "location" => {"city"=>"Sanfran"}},
+          "genre" => "Punkrock"
+        }
+      )
+    }
   end
-
-
 
   class Decorator < Representable::Decorator
     feature Representable::Hash
@@ -77,16 +86,24 @@ class SchemaTest < MiniTest::Spec
 
   # puts Decorator.representable_attrs[:definitions].inspect
 
-  let(:label) { OpenStruct.new(:name => "Fat Wreck", :city => "San Francisco", :employees => [OpenStruct.new(:name => "Mike")], :location => OpenStruct.new(:city => "Sanfran")) }
+  let(:label) do
+    OpenStruct.new(
+      :name => "Fat Wreck", :city => "San Francisco", :employees => [OpenStruct.new(:name => "Mike")],
+      :location => OpenStruct.new(:city => "Sanfran")
+    )
+  end
   let(:band) { OpenStruct.new(:genre => "Punkrock", :label => label) }
-
 
   # it { FlatlinersDecorator.new( OpenStruct.new(label: OpenStruct.new) ).
   #   to_hash.must_equal({}) }
   it do
-    _(Decorator.new(band).to_hash).must_equal({"genre"=>"Punkrock", "label"=>{"name"=>"Fat Wreck", "location"=>{"city"=>"Sanfran"}}})
+    _(Decorator.new(band).to_hash).must_equal(
+      {
+        "genre" => "Punkrock",
+        "label" => {"name" => "Fat Wreck", "location" => {"city"=>"Sanfran"}}
+      }
+    )
   end
-
 
   class InheritDecorator < Representable::Decorator
     include Representable::Hash
@@ -103,10 +120,16 @@ class SchemaTest < MiniTest::Spec
   end
 
   it do
-    _(InheritDecorator.new(band).to_hash).must_equal({"genre"=>"Punkrock", "label"=>{"name"=>"Fat Wreck", "city"=>"San Francisco", "location"=>{"city"=>"Sanfran"}}})
+    _(InheritDecorator.new(band).to_hash).must_equal(
+      {
+        "genre" => "Punkrock",
+        "label" => {
+          "name" => "Fat Wreck", "city" => "San Francisco",
+"location" => {"city"=>"Sanfran"}
+        }
+      }
+    )
   end
-
-
 
   class InheritFromDecorator < InheritDecorator
     property :label, inherit: true do
@@ -117,10 +140,17 @@ class SchemaTest < MiniTest::Spec
   end
 
   it do
-    _(InheritFromDecorator.new(band).to_hash).must_equal({"genre"=>"Punkrock", "label"=>{"name"=>"Fat Wreck", "city"=>"San Francisco", "employees"=>[{"name"=>"Mike"}], "location"=>{"city"=>"Sanfran"}}})
+    _(InheritFromDecorator.new(band).to_hash).must_equal(
+      {
+        "genre" => "Punkrock",
+        "label" => {
+          "name" => "Fat Wreck", "city" => "San Francisco", "employees" => [{"name"=>"Mike"}],
+      "location" => {"city"=>"Sanfran"}
+        }
+      }
+    )
   end
 end
-
 
 class ApplyTest < MiniTest::Spec
   class AlbumDecorator < Representable::Decorator

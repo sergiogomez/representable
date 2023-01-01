@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class DecoratorTest < MiniTest::Spec
   class SongRepresentation < Representable::Decorator
@@ -22,16 +22,16 @@ class DecoratorTest < MiniTest::Spec
   let(:song) { Song.new("Mama, I'm Coming Home") }
   let(:album) { Album.new([song]) }
 
-  let(:rating) { OpenStruct.new(system: 'MPAA', value: 'R') }
+  let(:rating) { OpenStruct.new(system: "MPAA", value: "R") }
 
   describe "inheritance" do
     let(:inherited_decorator) do
-      Class.new(AlbumRepresentation) do
+      Class.new(AlbumRepresentation) {
         property :best_song
-      end.new(Album.new([song], "Stand Up"))
+      }.new(Album.new([song], "Stand Up"))
     end
 
-    it { _(inherited_decorator.to_hash).must_equal({"songs"=>[{"name"=>"Mama, I'm Coming Home"}], "best_song"=>"Stand Up"}) }
+    it { _(inherited_decorator.to_hash).must_equal({"songs" => [{"name"=>"Mama, I'm Coming Home"}], "best_song" => "Stand Up"}) }
   end
 
   let(:decorator) { AlbumRepresentation.new(album) }
@@ -68,7 +68,6 @@ class DecoratorTest < MiniTest::Spec
     end
   end
 
-
   describe "inline decorators" do
     representer!(decorator: true) do
       collection :songs, :class => Song do
@@ -91,14 +90,15 @@ class InheritanceWithDecoratorTest < MiniTest::Spec
   class Twin
     extend Uber::InheritableAttr
     inheritable_attr :representer_class
-    self.representer_class = Class.new(Representable::Decorator){ include Representable::Hash }
+    self.representer_class = Class.new(Representable::Decorator) { include Representable::Hash }
   end
 
   class Album < Twin
     representer_class.property :title # Twin.representer_class.clone
   end
 
-  class Song < Twin # Twin.representer_class.clone
+  # Twin.representer_class.clone
+  class Song < Twin
   end
 
   it do

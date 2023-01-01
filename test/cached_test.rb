@@ -3,23 +3,23 @@ require "test_helper"
 class Profiler
   def self.profile(&block)
     case RUBY_ENGINE
-    when "ruby"
-      require 'ruby-prof'
+      when "ruby"
+        require "ruby-prof"
 
-      output = StringIO.new
-      profile_result = RubyProf.profile(&block)
-      printer = RubyProf::FlatPrinter.new(profile_result)
-      printer.print(output)
-      output.string
-    when "jruby"
-      require 'jruby/profiler'
+        output = StringIO.new
+        profile_result = RubyProf.profile(&block)
+        printer = RubyProf::FlatPrinter.new(profile_result)
+        printer.print(output)
+        output.string
+      when "jruby"
+        require "jruby/profiler"
 
-      output_stream  = java.io.ByteArrayOutputStream.new
-      print_stream   = java.io.PrintStream.new(output_stream)
-      profile_result = JRuby::Profiler.profile(&block)
-      printer = JRuby::Profiler::FlatProfilePrinter.new(profile_result)
-      printer.printProfile(print_stream)
-      output_stream.toString
+        output_stream  = java.io.ByteArrayOutputStream.new
+        print_stream   = java.io.PrintStream.new(output_stream)
+        profile_result = JRuby::Profiler.profile(&block)
+        printer = JRuby::Profiler::FlatProfilePrinter.new(profile_result)
+        printer.printProfile(print_stream)
+        output_stream.toString
     end
   end
 end
@@ -37,7 +37,7 @@ class CachedTest < MiniTest::Spec
     include Representable::Hash
     feature Representable::Cached
 
-    property :title, render_filter: lambda { |input, options| "#{input}:#{options[:options][:user_options]}" }
+    property :title, render_filter: ->(input, options) { "#{input}:#{options[:options][:user_options]}" }
     property :composer, class: Model::Artist do
       property :name
     end
@@ -51,9 +51,13 @@ class CachedTest < MiniTest::Spec
     collection :songs, decorator: SongRepresenter, class: Model::Song
   end
 
-
   describe "serialization" do
-    let(:album_hash) { {"name"=>"Louder And Even More Dangerous", "songs"=>[{"title"=>"Southbound:{:volume=>10}"}, {"title"=>"Jailbreak:{:volume=>10}"}]} }
+    let(:album_hash) do
+      {
+        "name"  => "Louder And Even More Dangerous",
+        "songs" => [{"title"=>"Southbound:{:volume=>10}"}, {"title"=>"Jailbreak:{:volume=>10}"}]
+      }
+    end
 
     let(:song) { Model::Song.new("Jailbreak") }
     let(:song2) { Model::Song.new("Southbound") }
@@ -64,8 +68,15 @@ class CachedTest < MiniTest::Spec
       # album2 = Model::Album.new("Louder And Even More Dangerous", [song2, song])
 
       # makes sure options are passed correctly.
-      _(representer.to_hash(user_options: {volume: 9})).must_equal({"name"=>"Live And Dangerous",
-        "songs"=>[{"title"=>"Jailbreak:{:volume=>9}"}, {"title"=>"Southbound:{:volume=>9}"}, {"title"=>"Emerald:{:volume=>9}"}]}) # called in Deserializer/Serializer
+      _(representer.to_hash(user_options: {volume: 9})).must_equal(
+        {
+          "name"  => "Live And Dangerous",
+          "songs" => [
+            {"title"=>"Jailbreak:{:volume=>9}"}, {"title"=>"Southbound:{:volume=>9}"},
+            {"title"=>"Emerald:{:volume=>9}"}
+          ]
+        }
+      ) # called in Deserializer/Serializer
 
       # representer becomes reusable as it is stateless.
       # representer.update!(album2)
@@ -88,30 +99,29 @@ class CachedTest < MiniTest::Spec
       #   - "3  Representable::Decorator.prepare"           -> At JRuby
 
       # 3 nested decorator is instantiated for 3 Songs, though.
-      _(data).must_match(/3\s*(<Class::)?Representable::Decorator\>?[\#.]prepare/m)
+      _(data).must_match(/3\s*(<Class::)?Representable::Decorator>?[\#.]prepare/m)
       # no Binding is instantiated at runtime.
       _(data).wont_match "Representable::Binding#initialize"
       # 2 mappers for Album, Song
       # data.must_match "2   Representable::Mapper::Methods#initialize"
       # title, songs, 3x title, composer
-      _(data).must_match(/8\s*Representable::Binding[#\.]render_pipeline/m)
+      _(data).must_match(/8\s*Representable::Binding[#.]render_pipeline/m)
       _(data).wont_match "render_functions"
       _(data).wont_match "Representable::Binding::Factories#render_functions"
     end
   end
 
-
   describe "deserialization" do
-    let(:album_hash) {
+    let(:album_hash) do
       {
-        "name"=>"Louder And Even More Dangerous",
-        "songs"=>[
-          {"title"=>"Southbound", "composer"=>{"name"=>"Lynott"}},
-          {"title"=>"Jailbreak", "composer"=>{"name"=>"Phil Lynott"}},
+        "name"  => "Louder And Even More Dangerous",
+        "songs" => [
+          {"title" => "Southbound", "composer" => {"name"=>"Lynott"}},
+          {"title" => "Jailbreak", "composer" => {"name"=>"Phil Lynott"}},
           {"title"=>"Emerald"}
         ]
       }
-    }
+    end
 
     it do
       album = Model::Album.new
@@ -139,12 +149,12 @@ class CachedTest < MiniTest::Spec
       # only 2 nested decorators are instantiated, Song, and Artist.
       # Didn't like the regexp?
       # MRI and JRuby has different output formats. See note above.
-      _(data).must_match(/5\s*(<Class::)?Representable::Decorator>?[#\.]prepare/)
+      _(data).must_match(/5\s*(<Class::)?Representable::Decorator>?[#.]prepare/)
       # a total of 5 properties in the object graph.
       _(data).wont_match "Representable::Binding#initialize"
 
       _(data).wont_match "parse_functions" # no pipeline creation.
-      _(data).must_match(/10\s*Representable::Binding[#\.]parse_pipeline/)
+      _(data).must_match(/10\s*Representable::Binding[#.]parse_pipeline/)
       # three mappers for Album, Song, composer
       # data.must_match "3   Representable::Mapper::Methods#initialize"
       # # 6 deserializers as the songs collection uses 2.

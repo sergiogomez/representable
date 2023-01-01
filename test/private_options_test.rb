@@ -1,6 +1,7 @@
 require "test_helper"
 
-class PrivateOptionsTest < MiniTest::Spec # TODO: move me to separate file.
+# TODO: move me to separate file.
+class PrivateOptionsTest < MiniTest::Spec
   representer!(decorator: true) do
   end
 

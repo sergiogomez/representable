@@ -1,14 +1,16 @@
-require 'test_helper'
+require "test_helper"
 
 class NestedTest < MiniTest::Spec
-	Album = Struct.new(:label, :owner, :amount)
+  Album = Struct.new(:label, :owner, :amount)
 
-	for_formats(
-    :hash => [Representable::Hash, {"label" => {"label"=>"Epitaph", "owner"=>"Brett Gurewitz", "releases"=>{"amount"=>19}}}],
+  for_formats(
+    :hash => [
+      Representable::Hash,
+      {"label" => {"label" => "Epitaph", "owner" => "Brett Gurewitz", "releases" => {"amount"=>19}}}
+    ],
     # :xml  => [Representable::XML, "<open_struct></open_struct>"],
     :yaml => [Representable::YAML, "---\nlabel:\n  label: Epitaph\n  owner: Brett Gurewitz\n  releases:\n    amount: 19\n"]
-  ) do |format, mod, output, input|
-
+  ) do |format, mod, output, _input|
     [false, true].each do |is_decorator|
       describe "::nested with (inline representer|decorator): #{is_decorator}" do
         let(:format) { format }
@@ -34,9 +36,7 @@ class NestedTest < MiniTest::Spec
           render(decorator).must_equal_document output
 
           # do not use extend on the nested object. # FIXME: make this a proper test with two describes instead of this pseudo-meta stuff.
-          if is_decorator==true
-            _(album).wont_be_kind_of(Representable::Hash)
-          end
+          _(album).wont_be_kind_of(Representable::Hash) if is_decorator == true
         end
 
         it "parses nested properties to Album instance" do
@@ -47,13 +47,12 @@ class NestedTest < MiniTest::Spec
       end
     end
 
-
     describe "Decorator ::nested with extend:" do
       let(:format) { format }
 
       representer!(:name => :label_rpr) do
-      	include mod
-      	property :label
+        include mod
+        property :label
         property :owner
 
         nested :releases do # DISCUSS: do we need to test this?
@@ -75,17 +74,15 @@ class NestedTest < MiniTest::Spec
       end
 
       it "parses nested properties to Album instance" do
-      	album = parse(representer.prepare(Album.new), output)
-      	_(album.label).must_equal "Epitaph"
-      	_(album.owner).must_equal "Brett Gurewitz"
+        album = parse(representer.prepare(Album.new), output)
+        _(album.label).must_equal "Epitaph"
+        _(album.owner).must_equal "Brett Gurewitz"
         _(album.amount).must_equal 19
       end
     end
   end
 
-
   describe "::nested without block but with inherit:" do
-
     representer!(:name => :parent) do
       include Representable::Hash
 

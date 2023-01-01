@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require "test_helper"
 
 class OptionTest < MiniTest::Spec
   class Callable
@@ -25,12 +25,14 @@ class OptionTest < MiniTest::Spec
 
   describe ::Representable::Option do
     it "supports all types of callables (method, proc, static etc)" do
-      _(album_representer.to_hash).must_equal({
-        "static"    => "static",
-        "symbol"    => "symbol",
-        "proc"      => "proc",
-        "callable"  => "callable",
-      })
+      _(album_representer.to_hash).must_equal(
+        {
+          "static"   => "static",
+          "symbol"   => "symbol",
+          "proc"     => "proc",
+          "callable" => "callable"
+        }
+      )
     end
   end
 end

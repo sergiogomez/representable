@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class HashPublicMethodsTest < Minitest::Spec
   #---
@@ -9,7 +9,7 @@ class HashPublicMethodsTest < Minitest::Spec
     property :name
   end
 
-  let(:data) { {"id"=>1,"name"=>"Rancid"} }
+  let(:data) { {"id" => 1, "name" => "Rancid"} }
 
   it { _(BandRepresenter.new(Band.new).from_hash(data)[:id, :name]).must_equal [1, "Rancid"] }
   it { _(BandRepresenter.new(Band.new).parse(data)[:id, :name]).must_equal [1, "Rancid"] }
@@ -37,7 +37,6 @@ class HashWithScalarPropertyTest < MiniTest::Spec
     end
   end
 
-
   describe "#from_hash" do
     it "parses plain property" do
       _(album.extend(representer).from_hash("title" => "This Song Is Recycled").title).must_equal "This Song Is Recycled"
@@ -51,7 +50,6 @@ class HashWithScalarPropertyTest < MiniTest::Spec
     end
   end
 end
-
 
 class HashWithTypedPropertyTest < MiniTest::Spec
   Album = Struct.new(:best_song)
@@ -85,7 +83,7 @@ class HashWithTypedPropertyTest < MiniTest::Spec
 
     # nested blank hash creates blank object when not populated.
     it do
-      album = Album.new#(Song.new("Pre-medicated Murder"))
+      album = Album.new # (Song.new("Pre-medicated Murder"))
       album.extend(representer).from_hash("best_song" => {})
       _(album.best_song.name).must_be_nil
     end
@@ -112,27 +110,25 @@ class HashWithTypedPropertyAndAs < MiniTest::Spec
   it { _(album.to_hash).must_equal("hit" => {"name" => "Liar"}) }
   it { _(album.from_hash("hit" => {"name" => "Go With Me"})).must_equal OpenStruct.new(:song => Song.new("Go With Me")) }
 end
-  #   # describe "FIXME COMBINE WITH ABOVE with :extend and :as" do
-  #   #   hash_song = Module.new do
-  #   #     include Representable::XML
-  #   #     self.representation_wrap = :song
-  #   #     property :name
-  #   #   end
+#   # describe "FIXME COMBINE WITH ABOVE with :extend and :as" do
+#   #   hash_song = Module.new do
+#   #     include Representable::XML
+#   #     self.representation_wrap = :song
+#   #     property :name
+#   #   end
 
-  #   #   let(:hash_album) { Module.new do
-  #   #     include Representable::XML
-  #   #     self.representation_wrap = :album
-  #   #     property :song, :extend => hash_song, :class => Song, :as => :hit
-  #   #   end }
+#   #   let(:hash_album) { Module.new do
+#   #     include Representable::XML
+#   #     self.representation_wrap = :album
+#   #     property :song, :extend => hash_song, :class => Song, :as => :hit
+#   #   end }
 
-  #   #   let(:album) { OpenStruct.new(:song => Song.new("Liar")).extend(hash_album) }
+#   #   let(:album) { OpenStruct.new(:song => Song.new("Liar")).extend(hash_album) }
 
-  #   #   it { album.to_xml.must_equal_xml("<album><hit><name>Liar</name></hit></album>") }
-  #   #   #it { album.from_hash("hit" => {"name" => "Go With Me"}).must_equal OpenStruct.new(:song => Song.new("Go With Me")) }
-  #   # end
-  # end
-
-
+#   #   it { album.to_xml.must_equal_xml("<album><hit><name>Liar</name></hit></album>") }
+#   #   #it { album.from_hash("hit" => {"name" => "Go With Me"}).must_equal OpenStruct.new(:song => Song.new("Go With Me")) }
+#   # end
+# end
 
 class HashWithTypedCollectionTest < MiniTest::Spec
   Album = Struct.new(:songs)
@@ -148,14 +144,28 @@ class HashWithTypedCollectionTest < MiniTest::Spec
 
   describe "#to_hash" do
     it "renders collection of typed property" do
-      _(album.extend(representer).to_hash).must_equal("songs" => [{"name" => "Liar", "track" => 1}, {"name" => "What I Know", "track" => 2}])
+      _(album.extend(representer).to_hash).must_equal(
+        "songs" => [
+          {"name" => "Liar", "track" => 1},
+          {"name" => "What I Know", "track" => 2}
+        ]
+      )
     end
   end
 
   describe "#from_hash" do
     it "parses collection of typed property" do
-      _(album.extend(representer).from_hash("songs" => [{"name" => "One Shot Deal", "track" => 4},
-        {"name" => "Three Way Dance", "track" => 5}])).must_equal Album.new([Song.new("One Shot Deal", 4), Song.new("Three Way Dance", 5)])
+      _(
+        album.extend(representer).from_hash(
+          "songs" => [
+            {"name" => "One Shot Deal", "track" => 4},
+            {
+              "name"  => "Three Way Dance",
+              "track" => 5
+            }
+          ]
+        )
+      ).must_equal Album.new([Song.new("One Shot Deal", 4), Song.new("Three Way Dance", 5)])
     end
   end
 end
@@ -166,17 +176,22 @@ class HashWithScalarCollectionTest < MiniTest::Spec
 
   let(:album) { Album.new(["Jackhammer", "Terrible Man"]) }
 
-
   describe "#to_hash" do
     it "renders a block style list per default" do
       _(album.extend(representer).to_hash).must_equal("songs" => ["Jackhammer", "Terrible Man"])
     end
   end
 
-
   describe "#from_hash" do
     it "parses a block style list" do
-      _(album.extend(representer).from_hash("songs" => ["Off Key Melody", "Sinking"])).must_equal Album.new(["Off Key Melody", "Sinking"])
+      _(
+        album.extend(representer).from_hash(
+          "songs" => [
+            "Off Key Melody",
+            "Sinking"
+          ]
+        )
+      ).must_equal Album.new(["Off Key Melody", "Sinking"])
     end
   end
 end

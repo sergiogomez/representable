@@ -8,14 +8,14 @@ class ParsePipelineTest < MiniTest::Spec
   describe "transforming nil to [] when parsing" do
     representer!(decorator: true) do
       collection :songs,
-          parse_pipeline: ->(*) {
-            Representable::Pipeline.insert(
-              parse_functions,                                # original function list from Binding#parse_functions.
-              ->(input, options) { input.nil? ? [] : input }, # your new function (can be any callable object)..
-              replace: Representable::OverwriteOnNil          # ..that replaces the original function.
-            )
-          },
-          class: Song do
+                 parse_pipeline: ->(*) {
+                   Representable::Pipeline.insert(
+                     parse_functions,                                # original function list from Binding#parse_functions.
+                     ->(input, _options) { input.nil? ? [] : input }, # your new function (can be any callable object)..
+                     replace: Representable::OverwriteOnNil # ..that replaces the original function.
+                   )
+                 },
+                 class:          Song do
         property :title
       end
     end
@@ -31,7 +31,6 @@ class ParsePipelineTest < MiniTest::Spec
     end
   end
 
-
   # tests [Collect[Instance, Prepare, Deserialize], Setter]
   class Representer < Representable::Decorator
     include Representable::Hash
@@ -40,23 +39,30 @@ class ParsePipelineTest < MiniTest::Spec
     #   property :email
     # end
     # DISCUSS: rename to populator_pipeline ?
-    collection :songs, parse_pipeline: ->(*) { [Collect[Instance, Prepare, Deserialize], Setter] }, instance: :instance!, exec_context: :decorator, pass_options: true do
+    collection :songs, parse_pipeline: ->(*) {
+                                         [Collect[Instance, Prepare, Deserialize], Setter]
+                                       }, instance: :instance!, exec_context: :decorator, pass_options: true do
       property :title
     end
 
-    def instance!(*options)
+    def instance!(*_options)
       Song.new
     end
 
     def songs=(array)
-      represented.songs=array
+      represented.songs = array
     end
   end
 
   it do
     skip "TODO: implement :parse_pipeline and :render_pipeline, and before/after/replace semantics"
     album = Album.new
-    Representer.new(album).from_hash({"artist"=>{"email"=>"yo"}, "songs"=>[{"title"=>"Affliction"}, {"title"=>"Dream Beater"}]})
+    Representer.new(album).from_hash(
+      {
+        "artist" => {"email"=>"yo"},
+        "songs"  => [{"title"=>"Affliction"}, {"title"=>"Dream Beater"}]
+      }
+    )
     _(album.songs).must_equal([Song.new("Affliction"), Song.new("Dream Beater")])
   end
 end

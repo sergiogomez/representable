@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.license       = "MIT"
 
-  spec.required_ruby_version = '>= 2.4.0'
+  spec.required_ruby_version = '>= 2.5.0'
 
   spec.add_dependency "uber",               "< 0.2.0"
   spec.add_dependency "declarative",        "< 0.1.0"
@@ -28,7 +28,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake"
   spec.add_development_dependency "test_xml", ">= 0.1.6"
   spec.add_development_dependency "minitest"
-  spec.add_development_dependency "virtus"
   spec.add_development_dependency "dry-types"
   spec.add_development_dependency "ruby-prof" if RUBY_ENGINE == "ruby" # mri
 end

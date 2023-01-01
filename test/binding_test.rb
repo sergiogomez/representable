@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class BindingTest < MiniTest::Spec
   Binding = Representable::Binding
@@ -20,7 +20,6 @@ class BindingTest < MiniTest::Spec
     it { _(Binding.new(Representable::Definition.new(:song)).skipable_empty_value?("Fatal Flu")).must_equal false }
   end
 
-
   describe "#default_for" do
     let(:definition) { Representable::Definition.new(:song, :default => "Insider") }
     let(:binding) { Binding.new(definition) }
@@ -38,7 +37,16 @@ class BindingTest < MiniTest::Spec
     it { _(Binding.new(render_nil_definition).default_for(nil)).must_be_nil }
 
     # return nil when value nil and render_nil: true, even when :default is set" do
-    it { _(Binding.new(Representable::Definition.new(:song, :render_nil => true, :default => "The Quest")).default_for(nil)).must_be_nil }
+    it {
+      _(
+        Binding.new(
+          Representable::Definition.new(
+            :song, :render_nil => true,
+                   :default    => "The Quest"
+          )
+        ).default_for(nil)
+      ).must_be_nil
+    }
 
     # return nil if no :default
     it { _(Binding.new(Representable::Definition.new(:song)).default_for(nil)).must_be_nil }

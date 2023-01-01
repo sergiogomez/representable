@@ -26,7 +26,6 @@ class HeritageTest < Minitest::Spec
     feature Ciao # does NOT extend id, of course.
 
     property :id, inherit: true do
-
     end
   end
 

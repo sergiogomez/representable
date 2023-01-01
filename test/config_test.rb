@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class ConfigTest < MiniTest::Spec
   subject { Representable::Config.new(Representable::Definition) }
@@ -64,16 +64,15 @@ class ConfigTest < MiniTest::Spec
     end
 
     describe "inherit: true" do
-      before {
+      before do
         subject.add(:title, {:me => true})
         subject.add(:title, {:peer => Module, :inherit => true})
-      }
+      end
 
       it { _(subject.get(:title)[:me]).must_equal true }
       it { _(subject.get(:title)[:peer]).must_equal Module }
     end
   end
-
 
   describe "#remove" do
     subject { Representable::Config.new(Representable::Definition) }
@@ -87,7 +86,6 @@ class ConfigTest < MiniTest::Spec
       _(subject.get(:genre)).must_be_nil
     end
   end
-
 
   describe "#each" do
     before { subject.add(:title, {:me => true}) }

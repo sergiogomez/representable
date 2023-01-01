@@ -8,10 +8,10 @@ class ObjectTest < MiniTest::Spec
   representer!(module: Representable::Object) do
     property :title
 
-    property :album, instance: lambda { |options| options[:fragment].name.upcase!; options[:fragment] } do
+    property :album, instance: ->(options) { options[:fragment].name.upcase!; options[:fragment] } do
       property :name
 
-      collection :songs, instance: lambda { |options| options[:fragment].title.upcase!; options[:fragment] } do
+      collection :songs, instance: ->(options) { options[:fragment].title.upcase!; options[:fragment] } do
         property :title
       end
     end
@@ -42,10 +42,10 @@ class ObjectTest < MiniTest::Spec
     representer!(module: Representable::Object) do
       property :title
 
-      property :album, render_filter: lambda { |input, options|input.name = "Live";input } do
+      property :album, render_filter: ->(input, _options) { input.name = "Live"; input } do
         property :name
 
-        collection :songs, render_filter: lambda { |input, options|input[0].title = 1;input } do
+        collection :songs, render_filter: ->(input, _options) { input[0].title = 1; input } do
           property :title
         end
       end

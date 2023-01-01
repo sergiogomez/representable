@@ -35,31 +35,31 @@ require "test_helper"
 #   </lib:book>
 #  </lib:library>
 
-  # Theoretically, every property (scalar) needs/should have a namespace.
-  # property :name, namespace: "http://eric.van-der-vlist.com/ns/person"
-  # # This is implicit if contained:
-  # class Person < Decorator
-  #   namespace: "http://eric.van-der-vlist.com/ns/person"
-  #   property :name #, namespace: "http://eric.van-der-vlist.com/ns/person"
-  # end
-  # class Library
-  #   namespace "http://eric.van-der-vlist.com/ns/library"
+# Theoretically, every property (scalar) needs/should have a namespace.
+# property :name, namespace: "http://eric.van-der-vlist.com/ns/person"
+# # This is implicit if contained:
+# class Person < Decorator
+#   namespace: "http://eric.van-der-vlist.com/ns/person"
+#   property :name #, namespace: "http://eric.van-der-vlist.com/ns/person"
+# end
+# class Library
+#   namespace "http://eric.van-der-vlist.com/ns/library"
 
-  #   namespace_def lib:    "http://eric.van-der-vlist.com/ns/library"
-  #   namespace_def person: "http://eric.van-der-vlist.com/ns/person"
-  #   # namespace_def person: Person
+#   namespace_def lib:    "http://eric.van-der-vlist.com/ns/library"
+#   namespace_def person: "http://eric.van-der-vlist.com/ns/person"
+#   # namespace_def person: Person
 
-  #   property :person, decorator: Person
-  # end
+#   property :person, decorator: Person
+# end
 class NamespaceXMLTest < Minitest::Spec
   module Model
     Library = Struct.new(:book)
     Book = Struct.new(:id, :isbn)
   end
 
-  let (:book) { Model::Book.new(1, 666) }
+  let(:book) { Model::Book.new(1, 666) }
 
-  #:simple-class
+  # :simple-class
   class Library < Representable::Decorator
     feature Representable::XML
     feature Representable::XML::Namespace
@@ -69,24 +69,23 @@ class NamespaceXMLTest < Minitest::Spec
     property :book do
       namespace "http://eric.van-der-vlist.com/ns/library"
 
-      property :id,  attribute: true
+      property :id, attribute: true
       property :isbn
     end
   end
-  #:simple-class end
-
+  # :simple-class end
 
   # default namespace for library
   it "what" do
     Library.new(Model::Library.new(book)).to_xml.must_xml(
 
-    #:simple-xml
-    %{<library xmlns="http://eric.van-der-vlist.com/ns/library">
+      # :simple-xml
+      %{<library xmlns="http://eric.van-der-vlist.com/ns/library">
       <book id="1">
         <isbn>666</isbn>
       </book>
     </library>}
-    #:simple-xml end
+      # :simple-xml end
     )
   end
 end
@@ -98,9 +97,9 @@ class Namespace2XMLTest < Minitest::Spec
     Character = Struct.new(:name, :born, :qualification)
   end
 
-  let (:book) { Model::Book.new(1, 666, Model::Character.new("Fowler"), [Model::Character.new("Frau Java", 1991, "typed")]) }
+  let(:book) { Model::Book.new(1, 666, Model::Character.new("Fowler"), [Model::Character.new("Frau Java", 1991, "typed")]) }
 
-  #:map-class
+  # :map-class
   class Library < Representable::Decorator
     feature Representable::XML
     feature Representable::XML::Namespace
@@ -112,7 +111,7 @@ class Namespace2XMLTest < Minitest::Spec
     property :book, class: Model::Book do
       namespace "http://eric.van-der-vlist.com/ns/library"
 
-      property :id,  attribute: true
+      property :id, attribute: true
       property :isbn
 
       property :author, class: Model::Character do
@@ -132,12 +131,12 @@ class Namespace2XMLTest < Minitest::Spec
       end
     end
   end
-  #:map-class end
+  # :map-class end
 
   it "renders" do
     Library.new(Model::Library.new(book)).to_xml.must_xml(
-#:map-xml
-%{<lib:library xmlns:lib=\"http://eric.van-der-vlist.com/ns/library\" xmlns:hr=\"http://eric.van-der-vlist.com/ns/person\">
+      # :map-xml
+      %{<lib:library xmlns:lib=\"http://eric.van-der-vlist.com/ns/library\" xmlns:hr=\"http://eric.van-der-vlist.com/ns/person\">
   <lib:book id=\"1\">
     <lib:isbn>666</lib:isbn>
     <hr:author>
@@ -150,14 +149,15 @@ class Namespace2XMLTest < Minitest::Spec
     </lib:character>
   </lib:book>
 </lib:library>}
-#:map-xml end
+      # :map-xml end
     )
   end
 
   it "parses" do
-    lib  = Model::Library.new
-    #:parse-call
-    Library.new(lib).from_xml(%{<lib:library
+    lib = Model::Library.new
+    # :parse-call
+    Library.new(lib).from_xml(
+      %{<lib:library
   xmlns:lib="http://eric.van-der-vlist.com/ns/library"
   xmlns:hr="http://eric.van-der-vlist.com/ns/person">
   <lib:book id="1">
@@ -174,13 +174,13 @@ class Namespace2XMLTest < Minitest::Spec
     </lib:character>
   </lib:book>
 </lib:library>}
-    #:parse-call end
+      # :parse-call end
     )
 
     _(lib.book.inspect).must_equal %{#<struct Namespace2XMLTest::Model::Book id=\"1\", isbn=\"666\", author=#<struct Namespace2XMLTest::Model::Character name=\"Fowler\", born=nil, qualification=nil>, character=[#<struct Namespace2XMLTest::Model::Character name=\"Frau Java\", born=\"1991\", qualification=\"typed\">]>}
 
-    #:parse-res
+    # :parse-res
     lib.book.character[0].name #=> "Frau Java"
-    #:parse-res end
+    # :parse-res end
   end
 end

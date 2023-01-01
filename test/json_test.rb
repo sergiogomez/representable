@@ -1,33 +1,32 @@
-require 'test_helper'
-require 'json'
+require "test_helper"
+require "json"
 
 module JsonTest
-class JSONPublicMethodsTest < Minitest::Spec
-  #---
-  # from_json
-  class BandRepresenter < Representable::Decorator
-    include Representable::JSON
-    property :id
-    property :name
+  class JSONPublicMethodsTest < Minitest::Spec
+    #---
+    # from_json
+    class BandRepresenter < Representable::Decorator
+      include Representable::JSON
+      property :id
+      property :name
+    end
+
+    let(:json) { '{"id":1,"name":"Rancid"}' }
+
+    it { _(BandRepresenter.new(Band.new).from_json(json)[:id, :name]).must_equal [1, "Rancid"] }
+    it { _(BandRepresenter.new(Band.new).parse(json)[:id, :name]).must_equal [1, "Rancid"] }
+
+    #---
+    # to_json
+    let(:band) { Band.new(1, "Rancid") }
+
+    it { _(BandRepresenter.new(band).to_json).must_equal json }
+    it { _(BandRepresenter.new(band).render).must_equal json }
   end
-
-  let(:json) { '{"id":1,"name":"Rancid"}' }
-
-  it { _(BandRepresenter.new(Band.new).from_json(json)[:id, :name]).must_equal [1, "Rancid"] }
-  it { _(BandRepresenter.new(Band.new).parse(json)[:id, :name]).must_equal [1, "Rancid"] }
-
-  #---
-  # to_json
-  let(:band) { Band.new(1, "Rancid") }
-
-  it { _(BandRepresenter.new(band).to_json).must_equal json }
-  it { _(BandRepresenter.new(band).render).must_equal json }
-end
 
   class APITest < MiniTest::Spec
     Json = Representable::JSON
     Def = Representable::Definition
-
 
     describe "JSON module" do
       before do
@@ -37,7 +36,7 @@ end
           property :label
           attr_accessor :name, :label
 
-          def initialize(name=nil)
+          def initialize(name = nil)
             self.name = name if name
           end
         end
@@ -45,29 +44,27 @@ end
         @band = @Band.new
       end
 
-
       describe "#from_json" do
         before do
           @band = @Band.new
-          @json  = {:name => "Nofx", :label => "NOFX"}.to_json
+          @json = {:name => "Nofx", :label => "NOFX"}.to_json
         end
 
         it "parses JSON and assigns properties" do
           @band.from_json(@json)
-          assert_equal ["Nofx", "NOFX"], [@band.name, @band.label]
+          assert_equal %w[Nofx NOFX], [@band.name, @band.label]
         end
       end
-
 
       describe "#from_hash" do
         before do
           @band = @Band.new
-          @hash  = {"name" => "Nofx", "label" => "NOFX"}
+          @hash = {"name" => "Nofx", "label" => "NOFX"}
         end
 
         it "receives hash and assigns properties" do
           @band.from_hash(@hash)
-          assert_equal ["Nofx", "NOFX"], [@band.name, @band.label]
+          assert_equal %w[Nofx NOFX], [@band.name, @band.label]
         end
 
         it "respects :wrap option" do
@@ -84,13 +81,11 @@ end
         end
       end
 
-
       describe "#to_json" do
         it "delegates to #to_hash and returns string" do
           assert_json "{\"name\":\"Rise Against\"}", @Band.new("Rise Against").to_json
         end
       end
-
 
       describe "#to_hash" do
         it "returns unwrapped hash" do
@@ -116,11 +111,11 @@ end
         end
 
         it "returns CollectionBinding" do
-          assert_kind_of Representable::Hash::Binding::Collection, Representable::Hash::Binding.build_for(Def.new(:band, :collection => true))
+          assert_kind_of Representable::Hash::Binding::Collection,
+                         Representable::Hash::Binding.build_for(Def.new(:band, :collection => true))
         end
       end
     end
-
 
     describe "DCI" do
       module SongRepresenter
@@ -134,7 +129,6 @@ end
         collection :songs, :class => Song, :extend => SongRepresenter
       end
 
-
       it "allows adding the representer by using #extend" do
         module BandRepresenter
           include Representable::JSON
@@ -144,6 +138,7 @@ end
         civ = Object.new
         civ.instance_eval do
           def name; "CIV"; end
+
           def name=(v)
             @name = v
           end
@@ -154,14 +149,15 @@ end
       end
 
       it "extends contained models when serializing" do
-        @album = Album.new([Song.new("I Hate My Brain"), mr=Song.new("Mr. Charisma")], mr)
+        @album = Album.new([Song.new("I Hate My Brain"), mr = Song.new("Mr. Charisma")], mr)
         @album.extend(AlbumRepresenter)
 
-        assert_json "{\"best_song\":{\"name\":\"Mr. Charisma\"},\"songs\":[{\"name\":\"I Hate My Brain\"},{\"name\":\"Mr. Charisma\"}]}", @album.to_json
+        assert_json "{\"best_song\":{\"name\":\"Mr. Charisma\"},\"songs\":[{\"name\":\"I Hate My Brain\"},{\"name\":\"Mr. Charisma\"}]}",
+                    @album.to_json
       end
 
       it "extends contained models when deserializing" do
-        #@album = Album.new(Song.new("I Hate My Brain"), Song.new("Mr. Charisma"))
+        # @album = Album.new(Song.new("I Hate My Brain"), Song.new("Mr. Charisma"))
         @album = Album.new
         @album.extend(AlbumRepresenter)
 
@@ -170,7 +166,6 @@ end
       end
     end
   end
-
 
   class PropertyTest < MiniTest::Spec
     describe "property :name" do
@@ -282,7 +277,7 @@ end
         property :name
         attr_accessor :name
 
-        def initialize(name="")
+        def initialize(name = "")
           self.name = name
         end
       end
@@ -295,9 +290,14 @@ end
 
       describe "#from_json" do
         it "pushes collection items to array" do
-          cd = Compilation.new.from_json({:bands => [
-            {:name => "Cobra Skulls"},
-            {:name => "Diesel Boy"}]}.to_json)
+          cd = Compilation.new.from_json(
+            {
+              :bands => [
+                {:name => "Cobra Skulls"},
+                {:name => "Diesel Boy"}
+              ]
+            }.to_json
+          )
           assert_equal ["Cobra Skulls", "Diesel Boy"], cd.bands.map(&:name).sort
         end
       end
@@ -309,7 +309,6 @@ end
         assert_json '{"bands":[{"name":"Diesel Boy"},{"name":"Bad Religion"}]}', cd.to_json
       end
     end
-
 
     describe ":as => :songList" do
       class Songs
@@ -346,7 +345,10 @@ end
       end
 
       it "parses with #from_json" do
-        assert_equal({"one" => "65", "two" => ["Emo Boy"]}, subject.from_json("{\"songs\":{\"one\":\"65\",\"two\":[\"Emo Boy\"]}}").songs)
+        assert_equal(
+          {"one" => "65", "two" => ["Emo Boy"]},
+          subject.from_json("{\"songs\":{\"one\":\"65\",\"two\":[\"Emo Boy\"]}}").songs
+        )
       end
     end
 

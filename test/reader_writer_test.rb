@@ -1,10 +1,10 @@
-require 'test_helper'
+require "test_helper"
 
 class ReaderWriterTest < BaseTest
   representer! do
     property :name,
-      :writer => lambda { |options| options[:doc]["title"] = "#{options[:user_options][:nr]}) #{options[:input]}" },
-      :reader => lambda { |options| self.name = options[:doc]["title"].split(") ").last }
+             :writer => ->(options) { options[:doc]["title"] = "#{options[:user_options][:nr]}) #{options[:input]}" },
+             :reader => ->(options) { self.name = options[:doc]["title"].split(") ").last }
   end
 
   subject { OpenStruct.new(:name => "Disorder And Disarray").extend(representer) }

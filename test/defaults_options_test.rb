@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class DefaultsOptionsTest < BaseTest
   let(:format) { :hash }
@@ -8,7 +8,7 @@ class DefaultsOptionsTest < BaseTest
   describe "hash options combined with dynamic options" do
     representer! do
       defaults render_nil: true do |name|
-        { as: name.to_s.upcase }
+        {as: name.to_s.upcase}
       end
 
       property :title
@@ -17,13 +17,20 @@ class DefaultsOptionsTest < BaseTest
       property :song_volume
     end
 
-    it { render(prepared).must_equal_document({"TITLE" => "Revolution", "AUTHOR_NAME" => "Some author", "DESCRIPTION" => nil, "SONG_VOLUME" => 20}) }
+    it {
+      render(prepared).must_equal_document(
+        {
+          "TITLE" => "Revolution", "AUTHOR_NAME" => "Some author", "DESCRIPTION" => nil,
+         "SONG_VOLUME" => 20
+        }
+      )
+    }
   end
 
   describe "with only dynamic property options" do
     representer! do
       defaults do |name|
-        { as: name.to_s.upcase }
+        {as: name.to_s.upcase}
       end
 
       property :title
@@ -45,7 +52,14 @@ class DefaultsOptionsTest < BaseTest
       property :song_volume
     end
 
-    it { render(prepared).must_equal_document({"title" => "Revolution", "author_name" => "Some author", "description" => nil, "song_volume" => 20}) }
+    it {
+      render(prepared).must_equal_document(
+        {
+          "title" => "Revolution", "author_name" => "Some author", "description" => nil,
+         "song_volume" => 20
+        }
+      )
+    }
   end
 
   describe "direct defaults hash" do
@@ -58,13 +72,20 @@ class DefaultsOptionsTest < BaseTest
       property :song_volume
     end
 
-    it { render(prepared).must_equal_document({"title" => "Revolution", "author_name" => "Some author", "description" => nil, "song_volume" => 20}) }
+    it {
+      render(prepared).must_equal_document(
+        {
+          "title" => "Revolution", "author_name" => "Some author", "description" => nil,
+         "song_volume" => 20
+        }
+      )
+    }
   end
 
   describe "direct defaults hash with dynamic options" do
     representer! do
       defaults render_nil: true do |name|
-        { as: name.to_s.upcase }
+        {as: name.to_s.upcase}
       end
 
       property :title
@@ -73,13 +94,20 @@ class DefaultsOptionsTest < BaseTest
       property :song_volume
     end
 
-    it { render(prepared).must_equal_document({"TITLE" => "Revolution", "AUTHOR_NAME" => "Some author", "DESCRIPTION" => nil, "SONG_VOLUME" => 20}) }
+    it {
+      render(prepared).must_equal_document(
+        {
+          "TITLE" => "Revolution", "AUTHOR_NAME" => "Some author", "DESCRIPTION" => nil,
+         "SONG_VOLUME" => 20
+        }
+      )
+    }
   end
 
   describe "prioritizes specific options" do
     representer! do
       defaults render_nil: true do |name|
-        { as: name.to_s.upcase }
+        {as: name.to_s.upcase}
       end
 
       property :title
